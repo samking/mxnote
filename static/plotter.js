@@ -194,19 +194,19 @@ function fetchMeds(meds) {
 function fetchLabs(labResult) {
   $('#status').html('Fetching patient lab results...');
   var lab_results = labResult.where("?lab rdf:type sp:LabResult")
-                  .where("?lab sp:labName ?lab_name")
-                  .where("?lab_name dcterms:title ?labTitle")
-                  .where ("?lab sp:quantitativeResult ?qr")
-                  .where("?qr rdf:type sp:QuantitativeResult")
-                  .where("?qr sp:normalRange ?nr")
-                  .where("?nr sp:minimum ?normalMin")
-                  .where("?normalMin sp:value ?normalMinValue")
-                  .where("?normalMin sp:unit ?normalMinUnit")
-                  .where("?nr sp:maximum ?normalMax")
-                  .where("?normalMax sp:value ?normalMaxValue")
-                  .where("?normalMax sp:unit ?normalMaxUnit")
-                  .where("?lab sp:specimenCollected ?spc")
-                  .where("?spc sp:startTime ?st");
+                             .where("?lab sp:labName ?lab_name")
+                             .where("?lab_name dcterms:title ?labTitle")
+                             .where("?lab sp:quantitativeResult ?qr")
+                             .where("?qr rdf:type sp:QuantitativeResult")
+                             .where("?qr sp:normalRange ?nr")
+                             .where("?nr sp:minimum ?normalMin")
+                             .where("?normalMin sp:value ?normalMinValue")
+                             .where("?normalMin sp:unit ?normalMinUnit")
+                             .where("?nr sp:maximum ?normalMax")
+                             .where("?normalMax sp:value ?normalMaxValue")
+                             .where("?normalMax sp:unit ?normalMaxUnit")
+                             .where("?lab sp:specimenCollected ?spc")
+                             .where("?spc sp:startTime ?st");
 
   var lab_exp = labResult.where("?lab_n rdf:type sp:LabResult")
                          .where("?lab_n sp:labName ?lab_name")
