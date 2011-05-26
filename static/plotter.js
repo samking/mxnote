@@ -9,6 +9,11 @@ var colors = {
   'med'  : '#F7A700 '
 }
 
+
+/**
+ * COOKIES
+ */
+
 var DATA_COOKIE_PREFIX = 'data_cookie_';
 
 //saves the provided key, value pair into a cookie that won't ever expire
@@ -85,6 +90,252 @@ function generateTextToExport () {
   return text;
 }
 
+/**
+ * SMART fetching
+ */
+
+function addLineBreaks(str) {
+  var words = String(str).split(' ');
+  var retValue = "";
+  var totWords = words.length;
+  while (words.length > 0) {
+    var line = "";
+    while (line.length < 15 && words.length > 0) {
+      line += words.shift() + " ";
+    }
+    retValue += line + "<br/>";
+  }
+  return retValue;
+}
+
+function sanitize (str) {
+  if (str.substring(0, 1) == '"' && str.substring(str.length - 1) == '"')
+    return str.substring(1, str.length - 2);
+  return str;
+}
+
+function cmpDataPts(a, b) {
+  return a.start - b.start;
+}
+
+function fetchProblems(probs) {
+  $('#status').html('Fetching patient problems...');
+  var problems = probs.where("?problem rdf:type sp:Problem")
+  .where("?problem sp:problemName ?problem_name_code")
+  .where("?problem_name_code dcterms:title ?probname")
+  .where("?problem sp:onset ?onset");
+
+  var dataPoints = [];
+  problems.each(function(i, val)
+  {
+    var onsetDate = String(val.onset);
+    var xVal = dateToTime(sanitize(onsetDate));
+    dataPoints.push( {
+      'name': addLineBreaks(val.probname.value), 
+      'desc': val.probname.value, 
+      'start': xVal, 
+      'end': xVal + Math.random() * 365 * 24 * 3600 * 1000, 
+      'type': 'prob'
+    });
+  });
+  
+  dataPoints.sort(cmpDataPts);
+  
+  for (var i = 0; i < dataPoints.length; i++) {
+    var pt = dataPoints[i];
+    addDataPoint(pt.name, pt.desc, pt.start, pt.end, pt.type);
+  }
+}
+
+function fetchMeds(meds) {
+  $('#status').html('Fetching patient medications...');
+  var med_names = meds.where("?medication rdf:type sp:Medication")
+  .where("?medication sp:drugName ?drug_name_code")
+  .where("?drug_name_code dcterms:title ?drugname")
+  .where("?medication sp:startDate ?start")
+  .where("?medication sp:instructions ?instruct")
+  .where("?medication sp:quantity ?quantity")
+  .where("?quantity sp:value ?qval")
+  .where("?quantity sp:unit ?qUnit")
+  .where("?medication sp:frequency ?freq")
+  .where("?freq sp:value ?freq_val")
+  .where("?freq sp:unit ?freq_unit");
+
+  var dataPoints = [];
+  med_names.each(function(i, single)
+  {
+    var xVal = dateToTime(single.start.value);
+    var end = xVal + Math.random() * 365 * 24 * 3600 * 1000;
+    dataPoints.push( {
+      'name' : addLineBreaks(sanitize(single.drugname.value)),
+      'desc' : single.drugname + "<br/>" + single.instruct + "<br/>" + single.qval + " " + single.qUnit + "<br/>" + single.freq_val + " " + single.freq_unit,
+      'start': xVal,
+      'end'  : end,
+      'type' : 'med'
+    });
+  });
+
+  dataPoints.sort(cmpDataPts);
+  for (var i = 0; i < dataPoints.length; i++) {
+    var pt = dataPoints[i];
+    addDataPoint(pt.name, pt.desc, pt.start, pt.end, pt.type);
+  }
+}
+ 
+function fetchLabs_old(labResult) {
+  $('#status').html('Fetching patient lab results...');
+  var lab_results = labResult.where("?lab rdf:type sp:LabResult")
+                   .where("?lab sp:labName ?lab_name")
+                   .where("?lab_name dcterms:title ?labTitle")
+                   .where ("?lab sp:quantitativeResult ?qr")
+                   .where("?qr rdf:type sp:QuantitativeResult")
+                   .where("?qr sp:normalRange ?nr")
+                   .where("?nr sp:minimum ?normalMin")
+                   .where("?normalMin sp:value ?normalMinValue")
+                   .where("?normalMin sp:unit ?normalMinUnit")
+                   .where("?nr sp:maximum ?normalMax")
+                   .where("?normalMax sp:value ?normalMaxValue")
+                   .where("?normalMax sp:unit ?normalMaxUnit");
+
+  var lab_exp = labResult.where("?lab_n rdf:type sp:LabResult")
+                .where("?lab_n sp:labName ?lab_name")
+                .where("?lab_name sp:codeProvenance ?cp")
+                .where("?cp rdf:type sp:CodeProvenance")
+                .where("?cp dcterms:title ?title");
+
+  var lab_c = labResult.where("?lab rdf:type sp:LabResult")
+                   .where("?lab sp:comments ?comments");
+
+  var results = [];
+
+  lab_results.each(function(i, lab)
+  {
+    results.push({date: "2007-07-02", name: lab.labTitle, desc: lab.labTitle + " " + lab.normalMinValue + " " + lab.normalMinUnit + " " + lab.nomalMaxValue + " " + lab.normalMaxValue + " " + lab.nr + "<br/>"});
+  });
+  lab_exp.each(function(j, lab)
+  {
+    results[results.length - 1].desc += lab.title + "<br/>";
+  });
+  lab_c.each(function(k, lab)
+  {
+    results[results.length - 1].desc += lab.comments;
+  });
+
+  for (var i = 0; i < results.length; i++) {
+    var start = dateToTime(results[i].date);
+    var end = start + Math.random() * 365 * 24 * 3600 * 1000;
+    addDataPoint(addLineBreaks(sanitize(results[i].name.value)), results[i].desc, start, end, "lab");
+  }
+}
+
+function fetchLabs(labResult) {
+  $('#status').html('Fetching patient lab results...');
+  var lab_results = labResult.where("?lab rdf:type sp:LabResult")
+                  .where("?lab sp:labName ?lab_name")
+                  .where("?lab_name dcterms:title ?labTitle")
+                  .where ("?lab sp:quantitativeResult ?qr")
+                  .where("?qr rdf:type sp:QuantitativeResult")
+                  .where("?qr sp:normalRange ?nr")
+                  .where("?nr sp:minimum ?normalMin")
+                  .where("?normalMin sp:value ?normalMinValue")
+                  .where("?normalMin sp:unit ?normalMinUnit")
+                  .where("?nr sp:maximum ?normalMax")
+                  .where("?normalMax sp:value ?normalMaxValue")
+                  .where("?normalMax sp:unit ?normalMaxUnit");
+
+  var lab_exp = labResult.where("?lab_n rdf:type sp:LabResult")
+               .where("?lab_n sp:labName ?lab_name")
+               .where("?lab_name sp:codeProvenance ?cp")
+               .where("?cp rdf:type sp:CodeProvenance")
+               .where("?cp dcterms:title ?title");
+
+  var lab_c = labResult.where("?lab rdf:type sp:LabResult")
+                  .where("?lab sp:comments ?comments");
+
+  var results = [];
+
+  var labNames = new Array('Cholest SerPl-mCnc', 'HDLc SerPl-mCnc', 'LDLc SerPl Calc-mCnc', 'Trigl SerPl-mCnc', 'CRP SerPl HS-mCnc', 
+                           'Albumin SerPl-mCnc', 'Albumin/Creat Ur-mRto', 'Glucose Bld-mCnc', 
+                           'Glucose p fast SerPl-mCnc', 'Glucose SerPl-mCnc', 'Hgb A1c MFr Bld',  'Prot SerPl-mCnc');
+
+  var labDesc = new Array('Cholestrol', 'HDL', 'LDL', 'Triglyceride', 'C-reactive protein', 'Albumin', 'Albumin/Creatine Ratio (Urine)', 'Blood Glucose', 
+                           'Fasting Blood Glucose', 'Serum Glucose', 'Hemoglobin A1c', 'Serum Protein');
+
+  var normal = new Array(200, 40, 129, 150, 1, 3, 0, 99, 99, 99, 7, 7.9);
+
+
+  var border = new Array(249, 59, 159, 199, 2.9, 5.4, 0, 125, 125, 125, 8, 7.9);
+
+  var very_high = new Array(250, 60, 160, 500, 3, 5.5, 0, 126, 126, 126, 10, 8);
+
+  function getIndex(name)
+  {
+    for (var i = 0; i < labNames.length; i++)
+    {
+       if(name == labNames[i])
+          return i;
+    }
+
+    // THIS SHOULD NEVER HAPPEN.
+    return -1;
+  }
+
+  function getIntensity(value, index)
+  {
+    if (index == 6)
+    {
+       // We don't have values for this test.
+       // ASK BRENDAN
+       return 0;
+    }
+    /* What about LDL stuff?
+     * 1: NORMAL 
+     * 2: BORDER LINE
+     * 3: HIGH
+     * 4: VERY HIGH
+     */ 
+    // BIG ASSUMPTION - Units are same - TODO - put in a check...
+    // if <= normal, then normal, if between normal and border then borderline, if between border and very high, then high and more than very high, then very high.
+    if (value <= normal[index])
+      return 1;  
+    else
+    {
+       if (value <= border[index])
+          return 2;
+       else if (value < very_high[index])
+          return 3;
+       else
+         return 4;
+    }
+  }
+
+  lab_results.each(function(i, lab)
+  {
+   /* Function call to get desc, we don't want to use labTitle since they don't have any. */
+   /* Function call to get how good or bad the patient's lab test value is. */
+   lab_name = lab.labTitle;
+
+   /* Strip quotes (name, normalMinValue and normalMinUnit).*/ 
+   
+   // lab_name = lab_name.replace(/'/g, "");
+   
+   index = getIndex(name);
+   lab_desc = labDesc[index];
+   colorVal = getIntensity(lab.normalMinValue, index);
+   // Assuming that quotes have been stripped off for everything.
+   
+   addLab(name, lab_desc, lab.normalMinValue + lab.normalMinUnit, colorVal);
+   
+   //results.push({date: "2007-07-02", name: lab_name, desc: lab_desc + " " + lab.normalMinValue + " " + lab.normalMinUnit + "<br/>"});
+
+  });
+}
+
+
+/**
+ * Chart stuff
+ */
+
 function addDataPoint(trackName, description, startTime, endTime, type) {
   var track = tracksMap[trackName];
   if (track == undefined) {
@@ -114,6 +365,10 @@ function addDataPoint(trackName, description, startTime, endTime, type) {
 
   chart1.series[track.id].addPoint({x: startTime, y: track.yVal, marker: {symbol: 'circle'}}); 
   chart1.series[track.id].addPoint({x: endTime, y: track.yVal, marker: {symbol: 'circle'}});
+}
+
+function addLab(name, lab_desc, unit, colorVal) {
+  console.log(name);
 }
   
 //returns the named property from a note if the note exists
@@ -224,20 +479,6 @@ function switchScheme(scheme) {
 }
 
 $(document).ready(function() {
-  function addLineBreaks(str) {
-  	var words = String(str).split(' ');
-  	var retValue = "";
-    var totWords = words.length;
-  	while (words.length > 0) {
-  	  var line = "";
-  	  while (line.length < 15 && words.length > 0) {
-  	  	line += words.shift() + " ";
-  	  }
-  	  retValue += line + "<br/>";
-  	}
-  	return retValue;
-  }
-  
   function createDialog(track, series, xVal) {
     $('#date').text(Highcharts.dateFormat('Date: %B %e, %Y', xVal));
     $('#time').text(Highcharts.dateFormat('Time: %H:%M', xVal));
@@ -442,128 +683,10 @@ $(document).ready(function() {
  
   loadDataFromCookie();
   
-  function sanitize (str) {
-    if (str.substring(0, 1) == '"' && str.substring(str.length - 1) == '"')
-      return str.substring(1, str.length - 2);
-    return str;
-  }
-  
-  function cmpDataPts(a, b) {
-    return a.start - b.start;
-  }
-  
-  SMART.PROBLEMS_get(function (probs)
-  {
-    $('#status').html('Fetching patient problems...');
-    var problems = probs.where("?problem rdf:type sp:Problem")
-    .where("?problem sp:problemName ?problem_name_code")
-    .where("?problem_name_code dcterms:title ?probname")
-    .where("?problem sp:onset ?onset");
-
-    var dataPoints = [];
-    problems.each(function(i, val)
-    {
-      var onsetDate = String(val.onset);
-      var xVal = dateToTime(sanitize(onsetDate));
-      dataPoints.push( {
-        'name': addLineBreaks(val.probname.value), 
-        'desc': val.probname.value, 
-        'start': xVal, 
-        'end': xVal + Math.random() * 365 * 24 * 3600 * 1000, 
-        'type': 'prob'
-      });
-    });
-    
-    dataPoints.sort(cmpDataPts);
-    
-    for (var i = 0; i < dataPoints.length; i++) {
-      var pt = dataPoints[i];
-      addDataPoint(pt.name, pt.desc, pt.start, pt.end, pt.type);
-    }
-  });
-  
-  SMART.MEDS_get(function (meds)
-  {
-    $('#status').html('Fetching patient medications...');
-    var med_names = meds.where("?medication rdf:type sp:Medication")
-    .where("?medication sp:drugName ?drug_name_code")
-    .where("?drug_name_code dcterms:title ?drugname")
-    .where("?medication sp:startDate ?start")
-    .where("?medication sp:instructions ?instruct")
-    .where("?medication sp:quantity ?quantity")
-    .where("?quantity sp:value ?qval")
-    .where("?quantity sp:unit ?qUnit")
-    .where("?medication sp:frequency ?freq")
-    .where("?freq sp:value ?freq_val")
-    .where("?freq sp:unit ?freq_unit");
-
-    var dataPoints = [];
-    med_names.each(function(i, single)
-    {
-      var xVal = dateToTime(single.start.value);
-      var end = xVal + Math.random() * 365 * 24 * 3600 * 1000;
-      dataPoints.push( {
-        'name' : addLineBreaks(sanitize(single.drugname.value)),
-        'desc' : single.drugname + "<br/>" + single.instruct + "<br/>" + single.qval + " " + single.qUnit + "<br/>" + single.freq_val + " " + single.freq_unit,
-        'start': xVal,
-        'end'  : end,
-        'type' : 'med'
-      });
-    });
-
-    dataPoints.sort(cmpDataPts);
-    for (var i = 0; i < dataPoints.length; i++) {
-      var pt = dataPoints[i];
-      addDataPoint(pt.name, pt.desc, pt.start, pt.end, pt.type);
-    }
-  });
-   
-  SMART.LAB_RESULTS_get(function (labResult)
-  {
-    $('#status').html('Fetching patient lab results...');
-    var lab_results = labResult.where("?lab rdf:type sp:LabResult")
-                     .where("?lab sp:labName ?lab_name")
-                     .where("?lab_name dcterms:title ?labTitle")
-                     .where ("?lab sp:quantitativeResult ?qr")
-                     .where("?qr rdf:type sp:QuantitativeResult")
-                     .where("?qr sp:normalRange ?nr")
-                     .where("?nr sp:minimum ?normalMin")
-                     .where("?normalMin sp:value ?normalMinValue")
-                     .where("?normalMin sp:unit ?normalMinUnit")
-                     .where("?nr sp:maximum ?normalMax")
-                     .where("?normalMax sp:value ?normalMaxValue")
-                     .where("?normalMax sp:unit ?normalMaxUnit");
-
-    var lab_exp = labResult.where("?lab_n rdf:type sp:LabResult")
-                  .where("?lab_n sp:labName ?lab_name")
-                  .where("?lab_name sp:codeProvenance ?cp")
-                  .where("?cp rdf:type sp:CodeProvenance")
-                  .where("?cp dcterms:title ?title");
-
-    var lab_c = labResult.where("?lab rdf:type sp:LabResult")
-                     .where("?lab sp:comments ?comments");
-
-    var results = [];
-
-    lab_results.each(function(i, lab)
-    {
-      results.push({date: "2007-07-02", name: lab.labTitle, desc: lab.labTitle + " " + lab.normalMinValue + " " + lab.normalMinUnit + " " + lab.nomalMaxValue + " " + lab.normalMaxValue + " " + lab.nr + "<br/>"});
-    });
-    lab_exp.each(function(j, lab)
-    {
-      results[results.length - 1].desc += lab.title + "<br/>";
-    });
-    lab_c.each(function(k, lab)
-    {
-      results[results.length - 1].desc += lab.comments;
-    });
-
-    for (var i = 0; i < results.length; i++) {
-      var start = dateToTime(results[i].date);
-      var end = start + Math.random() * 365 * 24 * 3600 * 1000;
-      addDataPoint(addLineBreaks(sanitize(results[i].name.value)), results[i].desc, start, end, "lab");
-    }
-
+  SMART.PROBLEMS_get(fetchProblems);
+  SMART.MEDS_get(fetchMeds);
+  SMART.LAB_RESULTS_get(function(labResults) {
+    fetchLabs(labResults);
     setTimeout(function() {
       $('#chart').css('display', 'inline');
       $('#loading').css('display', 'none');
@@ -571,5 +694,4 @@ $(document).ready(function() {
       resizeChart();
     }, 200);
   });
-  
 });
