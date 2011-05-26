@@ -61,7 +61,7 @@ function loadDataFromCookie() {
     for (var noteId in track.notes) {
       var note = track.notes[noteId];
       var series = chart1.series[track.id];
-      series.addPoint({x: note.date, y: series.data[0].y, marker: {symbol: 'url(../static/note.png)'}});
+      series.addPoint({x: note.date, y: series.data[0].y, marker: {symbol: 'url(../static/img/note.png)'}});
     }
   }
 }
@@ -233,7 +233,7 @@ $(document).ready(function() {
               'date'        : xVal,
               'description' : $('#textOfNote').val()
             });
-            series.addPoint({x: xVal, y: series.data[0].y, marker: {symbol: 'url(../static/note.png)'}});
+            series.addPoint({x: xVal, y: series.data[0].y, marker: {symbol: 'url(../static/img/note.png)'}});
           } else {
             for (var idx = 0; idx < track.notes.length; idx++) {
               if (track.notes[idx].date == xVal) {
@@ -252,17 +252,6 @@ $(document).ready(function() {
           $( this ).dialog( 'close' );
         }
       },
-      {
-        text: 'Email your Doctor',
-        click: function() {
-          var subject = "MyNote for " + SMART.record.full_name + " (" + SMART.record.id + ")";
-          var body = "Track Name: " + track.name +
-            "%0ANote Description: " + $('#textOfNote').val() + 
-            "%0A" + Highcharts.dateFormat('Date: %B %e, %Y', xVal) +
-            "%0A" + Highcharts.dateFormat('Time: %H:%M', xVal);
-          window.open('mailto:?subject=' + subject + '&body=' + body);
-        }
-      }
     ];
       
     if (desc != null) {

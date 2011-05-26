@@ -56,6 +56,13 @@ class index:
       <p id="date"></p>
       <p id="time"></p>
       <form> 
+        <select name="typeOfNote">
+          <option value="positive">positive</option>
+          <option value="neutral">neutral</option>
+          <option value="negative">negative</option>
+          <option value="question">question</option>
+          <option value="concern">concern</option>
+        </select>
         <textarea id="textOfNote" cols=40 rows=7 name="textOfNote" class="text ui-widget-content ui-corner-all"></textarea> 
       </form> 
     </div> 
