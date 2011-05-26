@@ -93,7 +93,7 @@ function addDataPoint(trackName, description, startTime, endTime, type) {
       'events' : [],
       'notes'  : [],
       'id'     : nextId++,
-      'yVal'   : 0
+      'yVal'   : nextVal
     };
     chart1.addSeries({name: trackName, data:[], showInLegend: false, visible: false, color: colors[type], stickyTracking: false});
     track = tracksMap[trackName];
