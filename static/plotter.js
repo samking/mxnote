@@ -66,6 +66,24 @@ function loadDataFromCookie() {
   }
 }
 
+//returns a string containing all user notes formatted to output in HTML
+function generateTextToExport () {
+  var text = "";
+  var LINE_DELIMITER = "<br />\n";
+  for (var trackName in tracksMap) {
+    var track = tracksMap[trackName];
+    for (var noteId in track.notes) {
+      var note = track.notes[noteId];
+      text += "Track Name: " + track.name + LINE_DELIMITER + 
+              "Track Type: " + track.type + LINE_DELIMITER + 
+              "Date: " + Highcharts.dateFormat('%B %e, %Y', note.date) + LINE_DELIMITER +
+              "Time: " + Highcharts.dateFormat('%H:%M', note.date) + LINE_DELIMITER + 
+              "Description: " + note.description + LINE_DELIMITER + 
+              LINE_DELIMITER;
+    }
+  }
+  return text;
+}
 function addDataPoint(trackName, description, startTime, endTime, type) {
   var track = tracksMap[trackName];
   if (track == undefined) {
