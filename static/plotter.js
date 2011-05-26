@@ -84,6 +84,7 @@ function generateTextToExport () {
   }
   return text;
 }
+
 function addDataPoint(trackName, description, startTime, endTime, type) {
   var track = tracksMap[trackName];
   if (track == undefined) {
@@ -289,6 +290,7 @@ $(document).ready(function() {
                 break;
               }
             }
+            saveDataToCookie();
             $ ( this ).dialog ( 'close' );
           }
         });
