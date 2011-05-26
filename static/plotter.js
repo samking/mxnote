@@ -121,9 +121,7 @@ function getNotesProperty(series, x, property) {
   var track = tracksMap[series.name];
   var notes = track.notes;
   for (var i = 0; i < notes.length; i++) {
-    console.log(notes[i]);
     if (notes[i]['date'] == x) 
-      console.log(notes[i]['date']);
       return notes[i][property];
   }
   return null;
@@ -249,7 +247,6 @@ $(document).ready(function() {
     $( '#textOfNote' ).val(desc);
     //if the current event already has a type, default it to that
     var type = getNotesProperty(series, xVal, 'type');
-    console.log($('#typeOfNote').val());
     if (type != undefined) 
       $('#typeOfNote').val(type);
     var buttons = [
