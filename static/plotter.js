@@ -278,7 +278,7 @@ function fetchLabs(labResult) {
    colorVal = getIntensity(lab.normalMinValue, index);
    // Assuming that quotes have been stripped off for everything.
    
-   addLab(sanitize(lab_name), lab_desc, lab.normalMinValue + lab.normalMinUnit, colorVal);
+   addLab(sanitize(lab_name.value), lab_desc, lab.normalMinValue + lab.normalMinUnit, colorVal);
   });
 }
 
@@ -344,7 +344,7 @@ function addLab(name, description, unit, colorVal) {
       'colorVal'    : colorVal,
   });
   
-  chart1.series[track.id].addPoint({x: tmp, y: track.yVal, marker: {symbol: 'url(../static/img/lab' + colorVal.toString() + '.png)'}}); 
+  chart1.series[track.id].addPoint({x: tmp, y: track.yVal, name: name, marker: {symbol: 'url(../static/img/lab' + colorVal.toString() + '.png)'}}); 
   tmp += 24 * 1000 * 3600 * 30;
 }
   
@@ -406,6 +406,22 @@ function resizeChart() {
   chart1.setSize(window.innerWidth, height);
 }
 
+function showAppropriateLabs() {
+  var track = tracksMap['Labs'];
+  var points = chart1.series[track.id].data;
+
+  while (0 < points.length) {
+    points[0].remove();
+  }
+
+  for (var i = 0; i < track.events.length; i++) {
+    var event = track.events[i];
+    if (isInDiseaseScheme(event.description, curScheme)) {
+      chart1.series[track.id].addPoint({x: event.startTime, y: track.yVal, name: event.description, marker: {symbol: 'url(../static/img/lab' + event.colorVal.toString() + '.png)'}}); 
+    }
+  }
+}
+
 /* TODO: show/hide labs based on scheme */
 function switchScheme(scheme) {
   if (scheme == curScheme) return;
@@ -416,7 +432,12 @@ function switchScheme(scheme) {
     var numToShow = 0;
     for (trackName in tracksMap) {
       var seriesId = tracksMap[trackName].id;
-      if (trackName == 'Labs' || isInDiseaseScheme(trackName, scheme)) {
+      var showLabs = false;
+      if (trackName == 'Labs') {
+        showAppropriateLabs();
+        showLabs = chart1.series[tracksMap['Labs'].id].data.length > 0;
+      }
+      if (showLabs || isInDiseaseScheme(trackName, scheme)) {
         numToShow ++;
         series = chart1.series[seriesId];
         if (!series.visible) {
