@@ -293,7 +293,7 @@ function fetchLabs(labResult) {
     unit = lab.normalMinUnit.value.replace(/"/g, "");
     lab_date = lab.st.value.replace(/"/g, "");
 
-    index = getIndex(name);
+    index = getIndex(lab_name);
     lab_desc = labDesc[index];
     colorVal = getIntensity(lab.normalMinValue, index);
 
@@ -302,7 +302,10 @@ function fetchLabs(labResult) {
     /*
      * Jason - you wanted name, desc (with values in it), date and colorVal - UNCOMMENT FOLLOWING*/
      name = lab_name.value;
-     desc = lab_desc + "\n" + "Value: " + value + unit;
+     if (lab_desc == undefined)
+        desc = "Value: " + value + unit;
+     else
+        desc = lab_desc + " " + "Value: " + value + unit;
      date = lab_date;
      colorVal = colorVal;
 
