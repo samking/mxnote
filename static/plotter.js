@@ -66,8 +66,13 @@ function loadDataFromCookie() {
     for (var noteId in track.notes) {
       var note = track.notes[noteId];
       var series = chart1.series[track.id];
-      series.addPoint({x: note.date, y: series.data[0].y, 
-                       marker: {symbol: 'url(../static/img/note.png)'}});
+      series.addPoint({
+        x: note.date, 
+        y: series.data[0].y, 
+        marker: {
+          symbol: 'url(../static/img/' + note.type + '_note.png)'
+        }
+      });
     }
   }
 }
@@ -189,17 +194,19 @@ function fetchMeds(meds) {
 function fetchLabs(labResult) {
   $('#status').html('Fetching patient lab results...');
   var lab_results = labResult.where("?lab rdf:type sp:LabResult")
-                             .where("?lab sp:labName ?lab_name")
-                             .where("?lab_name dcterms:title ?labTitle")
-                             .where ("?lab sp:quantitativeResult ?qr")
-                             .where("?qr rdf:type sp:QuantitativeResult")
-                             .where("?qr sp:normalRange ?nr")
-                             .where("?nr sp:minimum ?normalMin")
-                             .where("?normalMin sp:value ?normalMinValue")
-                             .where("?normalMin sp:unit ?normalMinUnit")
-                             .where("?nr sp:maximum ?normalMax")
-                             .where("?normalMax sp:value ?normalMaxValue")
-                             .where("?normalMax sp:unit ?normalMaxUnit");
+                  .where("?lab sp:labName ?lab_name")
+                  .where("?lab_name dcterms:title ?labTitle")
+                  .where ("?lab sp:quantitativeResult ?qr")
+                  .where("?qr rdf:type sp:QuantitativeResult")
+                  .where("?qr sp:normalRange ?nr")
+                  .where("?nr sp:minimum ?normalMin")
+                  .where("?normalMin sp:value ?normalMinValue")
+                  .where("?normalMin sp:unit ?normalMinUnit")
+                  .where("?nr sp:maximum ?normalMax")
+                  .where("?normalMax sp:value ?normalMaxValue")
+                  .where("?normalMax sp:unit ?normalMaxUnit")
+                  .where("?lab sp:specimenCollected ?spc")
+                  .where("?spc sp:startTime ?st");
 
   var lab_exp = labResult.where("?lab_n rdf:type sp:LabResult")
                          .where("?lab_n sp:labName ?lab_name")
@@ -292,8 +299,7 @@ function fetchLabs(labResult) {
    colorVal = getIntensity(lab.normalMinValue, index);
    // Assuming that quotes have been stripped off for everything.
    
-   addLab(sanitize(lab_name.value), lab_desc, 
-          lab.normalMinValue + lab.normalMinUnit, colorVal);
+   addLab(sanitize(lab_name.value), dateToTime(sanitize(lab.st.value)), colorVal);
   });
 }
 
@@ -337,10 +343,10 @@ function addDataPoint(trackName, description, startTime, endTime, type) {
                                     marker: {symbol: 'circle'}});
 }
 
-var tmp = dateToTime("2008-04-03");
 /* Jason TODO: work with Madiha for prototype.... what is name and unit? date?*/
-function addLab(name, description, unit, colorVal) {
-  colorVal = Math.floor(Math.random() * 4 + 1);
+function addLab(description, date, colorVal) {
+  console.log("adding lab " + description);
+//  colorVal = Math.floor(Math.random() * 4 + 1);
   var trackName = 'Labs';
   var type = 'lab';
   var track = tracksMap[trackName];
@@ -361,14 +367,18 @@ function addLab(name, description, unit, colorVal) {
 
   track['events'].push ({
       'description' : name,
-      'startTime'   : tmp,
+      'startTime'   : date,
       'colorVal'    : colorVal,
   });
   
-  chart1.series[track.id].addPoint({x: tmp, y: track.yVal, name: name, 
-                                    marker: {symbol: 'url(../static/img/lab' + 
-                                             colorVal.toString() + '.png)'}}); 
-  tmp += 24 * 1000 * 3600 * 30;
+  chart1.series[track.id].addPoint({
+    x: date, 
+    y: track.yVal, 
+    name: name, 
+    marker: {
+      symbol: 'url(../static/img/lab' + colorVal.toString() + '.png)'
+    }
+  }); 
 }
   
 //returns the named property from a note if the note exists
@@ -532,8 +542,14 @@ $(document).ready(function() {
               'description' : $('#textOfNote').val(),
               'type'        : $('#typeOfNote').val()
             });
-            series.addPoint({x: xVal, y: series.data[0].y, 
-                             marker: {symbol: 'url(../static/img/note.png)'}});
+            series.addPoint({
+              x: xVal,
+              y: series.data[0].y, 
+              marker: {
+                symbol: 'url(../static/img/' + $('#typeOfNote').val() + '_note.png)'
+              }
+            });
+
           } else {
             for (var idx = 0; idx < track.notes.length; idx++) {
               if (track.notes[idx].date == xVal) {
@@ -599,7 +615,8 @@ $(document).ready(function() {
             /* prevent Chrome from interpreting a click on reset zoom as a 
              * click on the graph
              */
-            if (e.srcElement != undefined && e.srcElement.nodeName == "tspan") return;
+            if (e.srcElement != undefined && e.srcElement.nodeName == "tspan")
+              return;
             var x = e.xAxis[0].value;
             var y = e.yAxis[0].value;
             
