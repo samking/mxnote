@@ -181,52 +181,6 @@ function fetchMeds(meds) {
     addDataPoint(pt.name, pt.desc, pt.start, pt.end, pt.type);
   }
 }
- 
-function fetchLabs_old(labResult) {
-  $('#status').html('Fetching patient lab results...');
-  var lab_results = labResult.where("?lab rdf:type sp:LabResult")
-                   .where("?lab sp:labName ?lab_name")
-                   .where("?lab_name dcterms:title ?labTitle")
-                   .where ("?lab sp:quantitativeResult ?qr")
-                   .where("?qr rdf:type sp:QuantitativeResult")
-                   .where("?qr sp:normalRange ?nr")
-                   .where("?nr sp:minimum ?normalMin")
-                   .where("?normalMin sp:value ?normalMinValue")
-                   .where("?normalMin sp:unit ?normalMinUnit")
-                   .where("?nr sp:maximum ?normalMax")
-                   .where("?normalMax sp:value ?normalMaxValue")
-                   .where("?normalMax sp:unit ?normalMaxUnit");
-
-  var lab_exp = labResult.where("?lab_n rdf:type sp:LabResult")
-                .where("?lab_n sp:labName ?lab_name")
-                .where("?lab_name sp:codeProvenance ?cp")
-                .where("?cp rdf:type sp:CodeProvenance")
-                .where("?cp dcterms:title ?title");
-
-  var lab_c = labResult.where("?lab rdf:type sp:LabResult")
-                   .where("?lab sp:comments ?comments");
-
-  var results = [];
-
-  lab_results.each(function(i, lab)
-  {
-    results.push({date: "2007-07-02", name: lab.labTitle, desc: lab.labTitle + " " + lab.normalMinValue + " " + lab.normalMinUnit + " " + lab.nomalMaxValue + " " + lab.normalMaxValue + " " + lab.nr + "<br/>"});
-  });
-  lab_exp.each(function(j, lab)
-  {
-    results[results.length - 1].desc += lab.title + "<br/>";
-  });
-  lab_c.each(function(k, lab)
-  {
-    results[results.length - 1].desc += lab.comments;
-  });
-
-  for (var i = 0; i < results.length; i++) {
-    var start = dateToTime(results[i].date);
-    var end = start + Math.random() * 365 * 24 * 3600 * 1000;
-    addDataPoint(addLineBreaks(sanitize(results[i].name.value)), results[i].desc, start, end, "lab");
-  }
-}
 
 function fetchLabs(labResult) {
   $('#status').html('Fetching patient lab results...');
@@ -324,10 +278,7 @@ function fetchLabs(labResult) {
    colorVal = getIntensity(lab.normalMinValue, index);
    // Assuming that quotes have been stripped off for everything.
    
-   addLab(name, lab_desc, lab.normalMinValue + lab.normalMinUnit, colorVal);
-   
-   //results.push({date: "2007-07-02", name: lab_name, desc: lab_desc + " " + lab.normalMinValue + " " + lab.normalMinUnit + "<br/>"});
-
+   addLab(sanitize(lab_name), lab_desc, lab.normalMinValue + lab.normalMinUnit, colorVal);
   });
 }
 
@@ -388,7 +339,7 @@ function addLab(name, description, unit, colorVal) {
   }
 
   track['events'].push ({
-      'description' : description,
+      'description' : name,
       'startTime'   : tmp,
       'colorVal'    : colorVal,
   });
