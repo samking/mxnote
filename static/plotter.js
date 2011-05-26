@@ -324,6 +324,7 @@ function fetchLabs(labResult) {
    colorVal = getIntensity(lab.normalMinValue, index);
    // Assuming that quotes have been stripped off for everything.
    
+   console.log(colorVal);
    addLab(name, lab_desc, lab.normalMinValue + lab.normalMinUnit, colorVal);
    
    //results.push({date: "2007-07-02", name: lab_name, desc: lab_desc + " " + lab.normalMinValue + " " + lab.normalMinUnit + "<br/>"});
@@ -367,8 +368,34 @@ function addDataPoint(trackName, description, startTime, endTime, type) {
   chart1.series[track.id].addPoint({x: endTime, y: track.yVal, marker: {symbol: 'circle'}});
 }
 
-function addLab(name, lab_desc, unit, colorVal) {
-  console.log(name);
+var tmp = dateToTime("2008-04-03");
+/* Jason TODO: work with Madiha for prototype.... what is name and unit?? date? */
+function addLab(name, description, unit, colorVal) {
+  colorVal = Math.floor(Math.random() * 4 + 1);
+  var trackName = 'Labs';
+  var type = 'lab';
+  var track = tracksMap[trackName];
+  if (track == undefined) {
+    tracksMap[trackName] = {
+      'name'   : trackName,
+      'type'   : type,
+      'events' : [],
+      'notes'  : [],
+      'id'     : nextId++,
+      'yVal'   : nextVal
+    };
+    chart1.addSeries({name: trackName, data:[], showInLegend: false, visible: false, color: colors[type], stickyTracking: false});
+    track = tracksMap[trackName];
+  }
+
+  track['events'].push ({
+      'description' : description,
+      'startTime'   : tmp,
+      'colorVal'    : colorVal,
+  });
+  
+  chart1.series[track.id].addPoint({x: tmp, y: track.yVal, marker: {symbol: 'url(../static/img/lab' + colorVal.toString() + '.png)'}}); 
+  tmp += 24 * 1000 * 3600 * 30;
 }
   
 //returns the named property from a note if the note exists
@@ -429,6 +456,7 @@ function resizeChart() {
   chart1.setSize(window.innerWidth, height);
 }
 
+/* TODO: show/hide labs based on scheme */
 function switchScheme(scheme) {
   if (scheme == curScheme) return;
   curScheme = scheme;
@@ -438,7 +466,7 @@ function switchScheme(scheme) {
     var numToShow = 0;
     for (trackName in tracksMap) {
       var seriesId = tracksMap[trackName].id;
-      if (isInDiseaseScheme(trackName, scheme)) {
+      if (trackName == 'Labs' || isInDiseaseScheme(trackName, scheme)) {
         numToShow ++;
         series = chart1.series[seriesId];
         if (!series.visible) {
@@ -685,6 +713,8 @@ $(document).ready(function() {
   
   SMART.PROBLEMS_get(fetchProblems);
   SMART.MEDS_get(fetchMeds);
+  
+  /* Really hacky.  We only want to load the chart after labs are finished loading. */
   SMART.LAB_RESULTS_get(function(labResults) {
     fetchLabs(labResults);
     setTimeout(function() {
