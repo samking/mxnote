@@ -324,7 +324,6 @@ function fetchLabs(labResult) {
    colorVal = getIntensity(lab.normalMinValue, index);
    // Assuming that quotes have been stripped off for everything.
    
-   console.log(colorVal);
    addLab(name, lab_desc, lab.normalMinValue + lab.normalMinUnit, colorVal);
    
    //results.push({date: "2007-07-02", name: lab_name, desc: lab_desc + " " + lab.normalMinValue + " " + lab.normalMinUnit + "<br/>"});
@@ -674,8 +673,9 @@ $(document).ready(function() {
                 }
               }
             }
+            chart1.redraw();
           },
-          
+
           hide: function() {
             var yVal = tracksMap[this.name].yVal;
             for (key in tracksMap) {
@@ -687,6 +687,7 @@ $(document).ready(function() {
                 }
               }
             }
+            chart1.redraw();
           }
         },
         point: {
