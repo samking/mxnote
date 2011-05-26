@@ -116,14 +116,19 @@ function addDataPoint(trackName, description, startTime, endTime, type) {
   chart1.series[track.id].addPoint({x: endTime, y: track.yVal, marker: {symbol: 'circle'}});
 }
   
-function getNotesText(series, x) {
+//returns the named property from a note if the note exists
+function getNotesProperty(series, x, property) {
   var track = tracksMap[series.name];
   var notes = track.notes;
   for (var i = 0; i < notes.length; i++) {
     if (notes[i]['date'] == x) 
-      return notes[i].description;
+      return notes[i][property];
   }
   return null;
+}
+
+function getNotesText(series, x) {
+  return getNotesProperty(series, x, 'description');
 }
 
 function getDescription(series, x) {
