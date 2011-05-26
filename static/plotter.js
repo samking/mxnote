@@ -285,21 +285,30 @@ function fetchLabs(labResult) {
 
   lab_results.each(function(i, lab)
   {
-   /* Function call to get desc, we don't want to use labTitle since they 
-    * don't have any. */
-   /* Function call to get how good or bad the patient's lab test value is. */
-   lab_name = lab.labTitle;
+    lab_name = lab.labTitle;
 
-   /* Strip quotes (name, normalMinValue and normalMinUnit).*/ 
-   
-   // lab_name = lab_name.replace(/'/g, "");
-   
-   index = getIndex(name);
-   lab_desc = labDesc[index];
-   colorVal = getIntensity(lab.normalMinValue, index);
-   // Assuming that quotes have been stripped off for everything.
-   
-   addLab(sanitize(lab_name.value), dateToTime(sanitize(lab.st.value)), colorVal);
+    /* Strip quotes (name, normalMinValue and normalMinUnit).*/
+    lab_name = lab_name.value.replace(/"/g, "");
+    value = lab.normalMinValue.value.replace(/"/g, "");
+    unit = lab.normalMinUnit.value.replace(/"/g, "");
+    lab_date = lab.st.value.replace(/"/g, "");
+
+    index = getIndex(name);
+    lab_desc = labDesc[index];
+    colorVal = getIntensity(lab.normalMinValue, index);
+
+    // Assuming that quotes have been stripped off for everything.
+
+    /*
+     * Jason - you wanted name, desc (with values in it), date and colorVal - UNCOMMENT FOLLOWING*/
+     name = lab_name.value;
+     desc = lab_desc + "\n" + "Value: " + value + unit;
+     date = lab_date;
+     colorVal = colorVal;
+
+    // OLD CALL ==> addLab(sanitize(lab_name.value), lab_desc, lab.normalMinValue + lab.normalMinUnit, colorVal);
+
+    addLab(lab_name, desc, dateToTime(sanitize(date)), colorVal);
   });
 }
 
@@ -308,7 +317,7 @@ function fetchLabs(labResult) {
  * Chart stuff
  */
 
-function addDataPoint(trackName, description, startTime, endTime, type) {
+function addDataPoint(trackName, description, startTime, endTime, type, colorVal) {
   var track = tracksMap[trackName];
   if (track == undefined) {
     tracksMap[trackName] = {
@@ -319,9 +328,14 @@ function addDataPoint(trackName, description, startTime, endTime, type) {
       'id'     : nextId++,
       'yVal'   : nextVal
     };
-    chart1.addSeries({name: trackName, data:[], showInLegend: false, 
-                      visible: false, color: colors[type], 
-                      stickyTracking: false});
+    chart1.addSeries({
+      name: trackName, 
+      data: [], 
+      showInLegend: false, 
+      visible: false, 
+      color: colors[type], 
+      stickyTracking: false
+    });
     track = tracksMap[trackName];
   }
   var addEvent = true;
@@ -330,55 +344,36 @@ function addDataPoint(trackName, description, startTime, endTime, type) {
   }
 
   if (addEvent) {
-    track['events'].push ({
+    var event = {
         'description' : description,
         'startTime'   : startTime,
         'endTime'     : endTime,
-    });
+    }
+    if (colorVal != undefined)
+      event.colorVal = colorVal;
+    track['events'].push(event);
+  }
+  
+  var symbol = 'circle';
+  if (colorVal) {
+    symbol = 'url(../static/img/lab' + colorVal.toString() + '.png)';
   }
 
-  chart1.series[track.id].addPoint({x: startTime, y: track.yVal, 
-                                    marker: {symbol: 'circle'}}); 
-  chart1.series[track.id].addPoint({x: endTime, y: track.yVal, 
-                                    marker: {symbol: 'circle'}});
+  chart1.series[track.id].addPoint({
+    x: startTime, 
+    y: track.yVal, 
+    marker: {symbol: symbol}
+  }); 
+  if (endTime != null)
+    chart1.series[track.id].addPoint({
+      x: endTime, 
+      y: track.yVal, 
+      marker: {symbol: 'circle'}
+    });
 }
 
-/* Jason TODO: work with Madiha for prototype.... what is name and unit? date?*/
-function addLab(description, date, colorVal) {
-  console.log("adding lab " + description);
-//  colorVal = Math.floor(Math.random() * 4 + 1);
-  var trackName = 'Labs';
-  var type = 'lab';
-  var track = tracksMap[trackName];
-  if (track == undefined) {
-    tracksMap[trackName] = {
-      'name'   : trackName,
-      'type'   : type,
-      'events' : [],
-      'notes'  : [],
-      'id'     : nextId++,
-      'yVal'   : nextVal
-    };
-    chart1.addSeries({name: trackName, data:[], showInLegend: false, 
-                      visible: false, color: colors[type], 
-                      stickyTracking: false});
-    track = tracksMap[trackName];
-  }
-
-  track['events'].push ({
-      'description' : name,
-      'startTime'   : date,
-      'colorVal'    : colorVal,
-  });
-  
-  chart1.series[track.id].addPoint({
-    x: date, 
-    y: track.yVal, 
-    name: name, 
-    marker: {
-      symbol: 'url(../static/img/lab' + colorVal.toString() + '.png)'
-    }
-  }); 
+function addLab(trackName, description, date, colorVal) {
+  addDataPoint(trackName, description, date, null, 'lab', colorVal);
 }
   
 //returns the named property from a note if the note exists
