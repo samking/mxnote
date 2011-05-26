@@ -56,7 +56,7 @@ class index:
       <p id="date"></p>
       <p id="time"></p>
       <form> 
-        <select name="typeOfNote">
+        <select id="typeOfNote">
           <option value="positive">positive</option>
           <option value="neutral">neutral</option>
           <option value="negative">negative</option>
