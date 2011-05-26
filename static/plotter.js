@@ -245,6 +245,8 @@ $(document).ready(function() {
     // Do not open a dialog if we click an event
     if (desc == null && getDescription(series, xVal) != null) return;
     $( '#textOfNote' ).val(desc);
+    var type = getNotesProperty(series, xVal, 'type');
+    $( '#typeOfNote' ).val(type);
     var buttons = [
       { 
         text: 'Save Note',
@@ -255,7 +257,8 @@ $(document).ready(function() {
           if (desc === null) {
             track.notes.push( {
               'date'        : xVal,
-              'description' : $('#textOfNote').val()
+              'description' : $('#textOfNote').val(),
+              'type'        : $('#typeOfNote').val()
             });
             series.addPoint({x: xVal, y: series.data[0].y, marker: {symbol: 'url(../static/img/note.png)'}});
           } else {
