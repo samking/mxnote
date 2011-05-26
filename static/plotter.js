@@ -83,6 +83,7 @@ function generateTextToExport () {
               "Track Type: " + track.type + LINE_DELIMITER + 
               "Date: " + Highcharts.dateFormat('%B %e, %Y', note.date) + LINE_DELIMITER +
               "Time: " + Highcharts.dateFormat('%H:%M', note.date) + LINE_DELIMITER + 
+              "Type: " + note.type + LINE_DELIMITER + 
               "Description: " + note.description + LINE_DELIMITER + 
               LINE_DELIMITER;
     }
