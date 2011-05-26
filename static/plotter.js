@@ -66,7 +66,8 @@ function loadDataFromCookie() {
     for (var noteId in track.notes) {
       var note = track.notes[noteId];
       var series = chart1.series[track.id];
-      series.addPoint({x: note.date, y: series.data[0].y, marker: {symbol: 'url(../static/img/note.png)'}});
+      series.addPoint({x: note.date, y: series.data[0].y, 
+                       marker: {symbol: 'url(../static/img/note.png)'}});
     }
   }
 }
@@ -169,7 +170,9 @@ function fetchMeds(meds) {
     var end = xVal + Math.random() * 365 * 24 * 3600 * 1000;
     dataPoints.push( {
       'name' : addLineBreaks(sanitize(single.drugname.value)),
-      'desc' : single.drugname + "<br/>" + single.instruct + "<br/>" + single.qval + " " + single.qUnit + "<br/>" + single.freq_val + " " + single.freq_unit,
+      'desc' : single.drugname + "<br/>" + single.instruct + "<br/>" + 
+               single.qval + " " + single.qUnit + "<br/>" + single.freq_val + 
+               " " + single.freq_unit,
       'start': xVal,
       'end'  : end,
       'type' : 'med'
@@ -186,35 +189,41 @@ function fetchMeds(meds) {
 function fetchLabs(labResult) {
   $('#status').html('Fetching patient lab results...');
   var lab_results = labResult.where("?lab rdf:type sp:LabResult")
-                  .where("?lab sp:labName ?lab_name")
-                  .where("?lab_name dcterms:title ?labTitle")
-                  .where ("?lab sp:quantitativeResult ?qr")
-                  .where("?qr rdf:type sp:QuantitativeResult")
-                  .where("?qr sp:normalRange ?nr")
-                  .where("?nr sp:minimum ?normalMin")
-                  .where("?normalMin sp:value ?normalMinValue")
-                  .where("?normalMin sp:unit ?normalMinUnit")
-                  .where("?nr sp:maximum ?normalMax")
-                  .where("?normalMax sp:value ?normalMaxValue")
-                  .where("?normalMax sp:unit ?normalMaxUnit");
+                             .where("?lab sp:labName ?lab_name")
+                             .where("?lab_name dcterms:title ?labTitle")
+                             .where ("?lab sp:quantitativeResult ?qr")
+                             .where("?qr rdf:type sp:QuantitativeResult")
+                             .where("?qr sp:normalRange ?nr")
+                             .where("?nr sp:minimum ?normalMin")
+                             .where("?normalMin sp:value ?normalMinValue")
+                             .where("?normalMin sp:unit ?normalMinUnit")
+                             .where("?nr sp:maximum ?normalMax")
+                             .where("?normalMax sp:value ?normalMaxValue")
+                             .where("?normalMax sp:unit ?normalMaxUnit");
 
   var lab_exp = labResult.where("?lab_n rdf:type sp:LabResult")
-               .where("?lab_n sp:labName ?lab_name")
-               .where("?lab_name sp:codeProvenance ?cp")
-               .where("?cp rdf:type sp:CodeProvenance")
-               .where("?cp dcterms:title ?title");
+                         .where("?lab_n sp:labName ?lab_name")
+                         .where("?lab_name sp:codeProvenance ?cp")
+                         .where("?cp rdf:type sp:CodeProvenance")
+                         .where("?cp dcterms:title ?title");
 
   var lab_c = labResult.where("?lab rdf:type sp:LabResult")
-                  .where("?lab sp:comments ?comments");
+                       .where("?lab sp:comments ?comments");
 
   var results = [];
 
-  var labNames = new Array('Cholest SerPl-mCnc', 'HDLc SerPl-mCnc', 'LDLc SerPl Calc-mCnc', 'Trigl SerPl-mCnc', 'CRP SerPl HS-mCnc', 
-                           'Albumin SerPl-mCnc', 'Albumin/Creat Ur-mRto', 'Glucose Bld-mCnc', 
-                           'Glucose p fast SerPl-mCnc', 'Glucose SerPl-mCnc', 'Hgb A1c MFr Bld',  'Prot SerPl-mCnc');
+  var labNames = new Array('Cholest SerPl-mCnc', 'HDLc SerPl-mCnc', 
+                           'LDLc SerPl Calc-mCnc', 'Trigl SerPl-mCnc', 
+                           'CRP SerPl HS-mCnc', 'Albumin SerPl-mCnc', 
+                           'Albumin/Creat Ur-mRto', 'Glucose Bld-mCnc', 
+                           'Glucose p fast SerPl-mCnc', 'Glucose SerPl-mCnc', 
+                           'Hgb A1c MFr Bld',  'Prot SerPl-mCnc');
 
-  var labDesc = new Array('Cholestrol', 'HDL', 'LDL', 'Triglyceride', 'C-reactive protein', 'Albumin', 'Albumin/Creatine Ratio (Urine)', 'Blood Glucose', 
-                           'Fasting Blood Glucose', 'Serum Glucose', 'Hemoglobin A1c', 'Serum Protein');
+  var labDesc = new Array('Cholestrol', 'HDL', 'LDL', 'Triglyceride', 
+                          'C-reactive protein', 'Albumin', 
+                          'Albumin/Creatine Ratio (Urine)', 'Blood Glucose', 
+                           'Fasting Blood Glucose', 'Serum Glucose', 
+                           'Hemoglobin A1c', 'Serum Protein');
 
   var normal = new Array(200, 40, 129, 150, 1, 3, 0, 99, 99, 99, 7, 7.9);
 
@@ -250,7 +259,10 @@ function fetchLabs(labResult) {
      * 4: VERY HIGH
      */ 
     // BIG ASSUMPTION - Units are same - TODO - put in a check...
-    // if <= normal, then normal, if between normal and border then borderline, if between border and very high, then high and more than very high, then very high.
+    /* if <= normal, then normal, if between normal and border then borderline,
+     * if between border and very high, then high and more than very high, then
+     * very high.
+     */
     if (value <= normal[index])
       return 1;  
     else
@@ -266,7 +278,8 @@ function fetchLabs(labResult) {
 
   lab_results.each(function(i, lab)
   {
-   /* Function call to get desc, we don't want to use labTitle since they don't have any. */
+   /* Function call to get desc, we don't want to use labTitle since they 
+    * don't have any. */
    /* Function call to get how good or bad the patient's lab test value is. */
    lab_name = lab.labTitle;
 
@@ -279,7 +292,8 @@ function fetchLabs(labResult) {
    colorVal = getIntensity(lab.normalMinValue, index);
    // Assuming that quotes have been stripped off for everything.
    
-   addLab(sanitize(lab_name.value), lab_desc, lab.normalMinValue + lab.normalMinUnit, colorVal);
+   addLab(sanitize(lab_name.value), lab_desc, 
+          lab.normalMinValue + lab.normalMinUnit, colorVal);
   });
 }
 
@@ -299,7 +313,9 @@ function addDataPoint(trackName, description, startTime, endTime, type) {
       'id'     : nextId++,
       'yVal'   : nextVal
     };
-    chart1.addSeries({name: trackName, data:[], showInLegend: false, visible: false, color: colors[type], stickyTracking: false});
+    chart1.addSeries({name: trackName, data:[], showInLegend: false, 
+                      visible: false, color: colors[type], 
+                      stickyTracking: false});
     track = tracksMap[trackName];
   }
   var addEvent = true;
@@ -315,12 +331,14 @@ function addDataPoint(trackName, description, startTime, endTime, type) {
     });
   }
 
-  chart1.series[track.id].addPoint({x: startTime, y: track.yVal, marker: {symbol: 'circle'}}); 
-  chart1.series[track.id].addPoint({x: endTime, y: track.yVal, marker: {symbol: 'circle'}});
+  chart1.series[track.id].addPoint({x: startTime, y: track.yVal, 
+                                    marker: {symbol: 'circle'}}); 
+  chart1.series[track.id].addPoint({x: endTime, y: track.yVal, 
+                                    marker: {symbol: 'circle'}});
 }
 
 var tmp = dateToTime("2008-04-03");
-/* Jason TODO: work with Madiha for prototype.... what is name and unit?? date? */
+/* Jason TODO: work with Madiha for prototype.... what is name and unit? date?*/
 function addLab(name, description, unit, colorVal) {
   colorVal = Math.floor(Math.random() * 4 + 1);
   var trackName = 'Labs';
@@ -335,7 +353,9 @@ function addLab(name, description, unit, colorVal) {
       'id'     : nextId++,
       'yVal'   : nextVal
     };
-    chart1.addSeries({name: trackName, data:[], showInLegend: false, visible: false, color: colors[type], stickyTracking: false});
+    chart1.addSeries({name: trackName, data:[], showInLegend: false, 
+                      visible: false, color: colors[type], 
+                      stickyTracking: false});
     track = tracksMap[trackName];
   }
 
@@ -345,7 +365,9 @@ function addLab(name, description, unit, colorVal) {
       'colorVal'    : colorVal,
   });
   
-  chart1.series[track.id].addPoint({x: tmp, y: track.yVal, name: name, marker: {symbol: 'url(../static/img/lab' + colorVal.toString() + '.png)'}}); 
+  chart1.series[track.id].addPoint({x: tmp, y: track.yVal, name: name, 
+                                    marker: {symbol: 'url(../static/img/lab' + 
+                                             colorVal.toString() + '.png)'}}); 
   tmp += 24 * 1000 * 3600 * 30;
 }
   
@@ -368,7 +390,9 @@ function getDescription(series, x) {
   var track = tracksMap[series.name];
   var events = track.events;
   for (var i = 0; i < events.length; i++) {
-    // TODO: What if the same series has an event starting and another ending at the same time? 
+    /* TODO: What if the same series has an event starting and another ending 
+     * at the same time? 
+     */
     if (events[i].startTime == x || events[i].endTime == x) 
       return events[i].description;
   }
@@ -418,7 +442,10 @@ function showAppropriateLabs() {
   for (var i = 0; i < track.events.length; i++) {
     var event = track.events[i];
     if (isInDiseaseScheme(event.description, curScheme)) {
-      chart1.series[track.id].addPoint({x: event.startTime, y: track.yVal, name: event.description, marker: {symbol: 'url(../static/img/lab' + event.colorVal.toString() + '.png)'}}); 
+      chart1.series[track.id].addPoint({x: event.startTime, y: track.yVal, 
+          name: event.description, 
+          marker: {symbol: 'url(../static/img/lab' + 
+          event.colorVal.toString() + '.png)'}}); 
     }
   }
 }
@@ -471,9 +498,11 @@ function switchScheme(scheme) {
   for (i in schemes) {
     var s = schemes[i];
     if (s == scheme) {
-      $('#' + s + '-button').attr('src', '../static/img/' + s + '_button_active.png');
+      $('#' + s + '-button').attr('src', '../static/img/' + s + 
+          '_button_active.png');
     } else {
-      $('#' + s + '-button').attr('src', '../static/img/' + s + '_button.png');
+      $('#' + s + '-button').attr('src', '../static/img/' + s + 
+          '_button.png');
     }
   }
 }
@@ -503,7 +532,8 @@ $(document).ready(function() {
               'description' : $('#textOfNote').val(),
               'type'        : $('#typeOfNote').val()
             });
-            series.addPoint({x: xVal, y: series.data[0].y, marker: {symbol: 'url(../static/img/note.png)'}});
+            series.addPoint({x: xVal, y: series.data[0].y, 
+                             marker: {symbol: 'url(../static/img/note.png)'}});
           } else {
             for (var idx = 0; idx < track.notes.length; idx++) {
               if (track.notes[idx].date == xVal) {
@@ -566,7 +596,9 @@ $(document).ready(function() {
       zoomType: 'x',
       events: {
         click: function(e) {
-            // prevent Chrome from interpreting a click on reset zoom as a click on the graph
+            /* prevent Chrome from interpreting a click on reset zoom as a 
+             * click on the graph
+             */
             if (e.srcElement != undefined && e.srcElement.nodeName == "tspan") return;
             var x = e.xAxis[0].value;
             var y = e.yAxis[0].value;
@@ -614,7 +646,8 @@ $(document).ready(function() {
       labels: {
         formatter: function() {
           for (key in tracksMap) {
-            if (chart1.series[tracksMap[key].id].visible && tracksMap[key].yVal == this.value)
+            if (chart1.series[tracksMap[key].id].visible && 
+                tracksMap[key].yVal == this.value)
               return key;
           }
           return '';
@@ -677,7 +710,8 @@ $(document).ready(function() {
     },
     tooltip: {
       formatter: function() {
-        return '<b>' + Highcharts.dateFormat('%Y %B %e', this.x) + '</b><br/>' + getDescription(this.series, this.x) + "<br/>" + this.y;
+        return '<b>' + Highcharts.dateFormat('%Y %B %e', this.x) + 
+          '</b><br/>' + getDescription(this.series, this.x) + "<br/>" + this.y;
       }
     },
     series: [],
@@ -688,7 +722,7 @@ $(document).ready(function() {
   SMART.PROBLEMS_get(fetchProblems);
   SMART.MEDS_get(fetchMeds);
   
-  /* Really hacky.  We only want to load the chart after labs are finished loading. */
+  /* Hacky.  We only want to load the chart after labs are finished loading. */
   SMART.LAB_RESULTS_get(function(labResults) {
     fetchLabs(labResults);
     setTimeout(function() {
