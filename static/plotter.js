@@ -102,18 +102,9 @@ function generateTextToExport () {
  */
  
 function exportNotes() {
-  $( '#export-dialog' ).dialog({
-    autoOpen: false,
-    height: 800,
-    width: 600,
-    modal: true,
-    title: 'Export...',
-    close: function() {
-    }
-  });
-  $("#exportText").html(generateTextToExport());
-  $( "#dialog" ).dialog('open');
-  $('#export-dialog').dialog('open');
+  newWin = window.open("");
+  newWin.document.write(generateTextToExport());
+  newWin.print();
 }
 
 /**

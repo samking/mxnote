@@ -69,10 +69,6 @@ class index:
         <textarea id="textOfNote" cols=40 rows=7 name="textOfNote" class="text ui-widget-content ui-corner-all"></textarea> 
       </form> 
     </div>
-    <div id="export-dialog" style="display: none;">
-      <p><a href="JavaScript:window.print();">Print this page</a></p>
-      <p id="exportText"></p>
-    </div>
   </body> 
 </html>"""
 
