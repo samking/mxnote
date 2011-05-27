@@ -697,7 +697,7 @@ $(document).ready(function() {
       align: 'right',
       verticalAlign: 'top',
       x: -10,
-      y: 10,
+      y: 30,
       borderWidth: 0,
       reversed: true,
     },
