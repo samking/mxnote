@@ -85,7 +85,7 @@ function generateTextToExport () {
     var track = tracksMap[trackName];
     for (var noteId in track.notes) {
       var note = track.notes[noteId];
-      text += "Track Name: " + track.name + LINE_DELIMITER + 
+      text += "Track Name: " + track.name.replace(/<br.*>/ig, " ") + LINE_DELIMITER + 
               "Track Type: " + track.type + LINE_DELIMITER + 
               "Date: " + Highcharts.dateFormat('%B %e, %Y', note.date) + LINE_DELIMITER +
               "Time: " + Highcharts.dateFormat('%H:%M', note.date) + LINE_DELIMITER + 
@@ -111,6 +111,7 @@ function exportNotes() {
     close: function() {
     }
   });
+  $("#exportText").html(generateTextToExport());
   $( "#dialog" ).dialog('open');
   $('#export-dialog').dialog('open');
 }

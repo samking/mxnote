@@ -70,6 +70,8 @@ class index:
       </form> 
     </div>
     <div id="export-dialog" style="display: none;">
+      <p><a href="JavaScript:window.print();">Print this page</a></p>
+      <p id="exportText"></p>
     </div>
   </body> 
 </html>"""
