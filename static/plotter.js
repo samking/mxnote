@@ -270,6 +270,7 @@ function fetchLabs(labResult) {
      * if between border and very high, then high and more than very high, then
      * very high.
      */
+    //alert("index:  " + index + " " + labNames[index] + " value : " + value + " " + normal[index] + " " + border[index] + " " + very_high[index]);
     if (value <= normal[index])
       return 1;  
     else
@@ -295,7 +296,7 @@ function fetchLabs(labResult) {
 
     index = getIndex(lab_name);
     lab_desc = labDesc[index];
-    colorVal = getIntensity(lab.normalMinValue, index);
+    colorVal = getIntensity(value, index);
 
     // Assuming that quotes have been stripped off for everything.
 
