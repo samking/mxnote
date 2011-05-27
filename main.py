@@ -50,6 +50,9 @@ class index:
       <div id="show-no-items" style="position: absolute; top: 80px; left: 0px; width: 100%;">
         <div id="no-items-msg" style="margin-top: 200px; text-align: center; font-size: 250%; font-family: Helvetica, sans-serif;">Click on a disease scheme, above.</div>
       </div>
+      <div id="export-button" style="display: none; position: absolute; top: 80px; right: 200px;">
+        <a href="javascript:;" onClick="exportNotes()">Export</a>
+      </div>
     </div>
     <div id="scheme-status" style="visibility: hidden; text-align: center; margin-top: 30px; margin-left: auto; margin-right: auto; font-family: helvetica, sans-serif;">Switching schemes.  Please be patient...</div>
     <div id="dialog" title="New note" style="display: none;">
@@ -65,7 +68,9 @@ class index:
         </select>
         <textarea id="textOfNote" cols=40 rows=7 name="textOfNote" class="text ui-widget-content ui-corner-all"></textarea> 
       </form> 
-    </div> 
+    </div>
+    <div id="export-dialog" style="display: none;">
+    </div>
   </body> 
 </html>"""
 

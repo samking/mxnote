@@ -98,6 +98,24 @@ function generateTextToExport () {
 }
 
 /**
+ * Exporting
+ */
+ 
+function exportNotes() {
+  $( '#export-dialog' ).dialog({
+    autoOpen: false,
+    height: 800,
+    width: 600,
+    modal: true,
+    title: 'Export...',
+    close: function() {
+    }
+  });
+  $( "#dialog" ).dialog('open');
+  $('#export-dialog').dialog('open');
+}
+
+/**
  * SMART fetching
  */
 
@@ -492,8 +510,10 @@ function switchScheme(scheme) {
     if (numToShow == 0) {
         $('#no-items-msg').html('No items to display.');
         $('#show-no-items').css('display', 'inline');
+        $('#export-button').css('display', 'none');
       } else {
         $('#show-no-items').css('display', 'none');
+        $('#export-button').css('display', 'inline');
       }
     chart1.isDirtyLegend = true;
     $('#scheme-status').css('visibility', 'hidden');
@@ -640,7 +660,7 @@ $(document).ready(function() {
       text: SMART.record.full_name + ' - ' + SMART.record.id
     },
     subtitle: {
-      text: 'MyNote'
+      text: '[click on any colored line to add a note]'
     },
     xAxis: {
       type: 'datetime',
