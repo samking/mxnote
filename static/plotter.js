@@ -88,8 +88,14 @@ function makeDisplayTrackType(trackType) {
   return trackType;
 }
 
+//returns >0 if noteA is more recent than noteB, 0 if they're equal, else <0 
+function noteSortCmpFn(noteA, noteB) {
+  return new Date(noteA.date) - new Date(noteB.date);
+}
+
 //returns a string containing all user notes formatted to output in HTML
 //earliestDate represents the earliest date that will be printed
+//the string will be in sorted order by date
 function generateTextToExport (earliestDate) {
   var text = "";
   //adds header: Logo, Patient Name, Prepared On
@@ -98,21 +104,32 @@ function generateTextToExport (earliestDate) {
   text += "Report prepared on " + (new Date()).toUTCString() + LINE_DELIMITER;
   text += LINE_DELIMITER;
 
-  //adds each of the notes
+  var notes = [];
+
+  //adds each of the notes to an array
   for (var trackName in tracksMap) {
     var track = tracksMap[trackName];
     for (var noteId in track.notes) {
       var note = track.notes[noteId];
       var displayTrackType = makeDisplayTrackType(track.type);
       if (new Date(note.date) >= earliestDate) {
-        text += displayTrackType + ": " + track.name.replace(/<br.*>/ig, " ") + 
-                LINE_DELIMITER + 
-                Highcharts.dateFormat('%B %e, %Y, %H:%M', note.date) + 
-                LINE_DELIMITER +
-                note.type + ": " + note.description + LINE_DELIMITER + 
-                LINE_DELIMITER;
+        notes.push(note);
       }
     }
+  }
+
+  //sorts the array
+  notes.sort(noteSortCmpFn);
+
+  //prints the array
+  for (var noteId in notes) {
+    var note = notes[noteId];
+    text += displayTrackType + ": " + track.name.replace(/<br.*>/ig, " ") + 
+            LINE_DELIMITER + 
+            Highcharts.dateFormat('%B %e, %Y, %H:%M', note.date) + 
+            LINE_DELIMITER +
+            note.type + ": " + note.description + LINE_DELIMITER + 
+            LINE_DELIMITER;
   }
   return text;
 }
