@@ -208,6 +208,9 @@ function fetchLabs(labResult) {
                              .where("?lab_name dcterms:title ?labTitle")
                              .where("?lab sp:quantitativeResult ?qr")
                              .where("?qr rdf:type sp:QuantitativeResult")
+                             .where("?qr sp:valueAndUnit ?vAu")
+                             .where("?vAu sp:value ?Lvalue")
+                             .where("?vAu sp:unit ?Lunit")
                              .where("?qr sp:normalRange ?nr")
                              .where("?nr sp:minimum ?normalMin")
                              .where("?normalMin sp:value ?normalMinValue")
@@ -300,8 +303,8 @@ function fetchLabs(labResult) {
 
     /* Strip quotes (name, normalMinValue and normalMinUnit).*/
     lab_name = lab_name.value.replace(/"/g, "");
-    value = lab.normalMinValue.value.replace(/"/g, "");
-    unit = lab.normalMinUnit.value.replace(/"/g, "");
+    value = lab.Lvalue.value.replace(/"/g, "");
+    unit = lab.Lunit.value.replace(/"/g, "");
     lab_date = lab.st.value.replace(/"/g, "");
 
     index = getIndex(lab_name);
