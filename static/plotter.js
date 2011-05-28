@@ -9,6 +9,7 @@ var colors = {
   'med'  : '#F7A700 '
 }
 
+var LINE_DELIMITER = "<br />\n";
 
 /**
  * COOKIES
@@ -90,7 +91,6 @@ function makeDisplayTrackType(trackType) {
 //returns a string containing all user notes formatted to output in HTML
 function generateTextToExport () {
   var text = "";
-  var LINE_DELIMITER = "<br />\n";
   //adds header: Logo, Patient Name, Prepared On
   text += '<img src="../static/img/logo.png" height="72px"/>';
   text += SMART.record.full_name + ' - ' + SMART.record.id + ".  ";
@@ -116,11 +116,47 @@ function generateTextToExport () {
 /**
  * Exporting
  */
- 
-function exportNotes() {
+
+function exportAll() {
   newWin = window.open("");
   newWin.document.write(generateTextToExport());
   newWin.print();
+  $('#export-dialog').dialog('close');
+}
+
+function exportLastMonth() {
+  $('#export-dialog').dialog('close');
+}
+
+function exportTimeline() {
+  $('#export-dialog').dialog('close');
+}
+
+function closeExportDialog() {
+  $('#export-dialog').dialog('close');
+}
+
+function exportNotes() {
+  var linksText = '<a href="javascript:void(0)" onclick="exportTimeline();">' +
+                  'Print Timeline</a>' + LINE_DELIMITER +
+                  '<a href="javascript:void(0)" onclick="exportLastMonth();">' +
+                  'Print Last Month of Notes</a>' + LINE_DELIMITER + 
+                  '<a href="javascript:void(0)" onclick="exportAll();">' +
+                  'Print All Notes</a>' + LINE_DELIMITER + 
+                  '<a href="javascript:void(0)" onclick="closeExportDialog();">' +
+                  'Close</a>' + LINE_DELIMITER;
+  $( '#export-dialog' ).dialog({
+    autoOpen: false,
+    height: 200,
+    width: 300,
+    modal: true,
+    title: 'Print...',
+    close: function() {}
+  });
+  $('#exportText').html(linksText);
+  //$("#exportText").html(generateTextToExport());
+  //$( "#dialog" ).dialog('open');
+  $('#export-dialog').dialog('open');
 }
 
 /**
