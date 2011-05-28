@@ -89,7 +89,8 @@ function makeDisplayTrackType(trackType) {
 }
 
 //returns a string containing all user notes formatted to output in HTML
-function generateTextToExport () {
+//earliestDate represents the earliest date that will be printed
+function generateTextToExport (earliestDate) {
   var text = "";
   //adds header: Logo, Patient Name, Prepared On
   text += '<img src="../static/img/logo.png" height="72px"/>';
@@ -103,11 +104,14 @@ function generateTextToExport () {
     for (var noteId in track.notes) {
       var note = track.notes[noteId];
       var displayTrackType = makeDisplayTrackType(track.type);
-      text += displayTrackType + ": " + track.name.replace(/<br.*>/ig, " ") + 
-              LINE_DELIMITER + 
-              Highcharts.dateFormat('%B %e, %Y, %H:%M', note.date) + LINE_DELIMITER +
-              note.type + ": " + note.description + LINE_DELIMITER + 
-              LINE_DELIMITER;
+      if (new Date(note.date) >= earliestDate) {
+        text += displayTrackType + ": " + track.name.replace(/<br.*>/ig, " ") + 
+                LINE_DELIMITER + 
+                Highcharts.dateFormat('%B %e, %Y, %H:%M', note.date) + 
+                LINE_DELIMITER +
+                note.type + ": " + note.description + LINE_DELIMITER + 
+                LINE_DELIMITER;
+      }
     }
   }
   return text;
@@ -117,19 +121,30 @@ function generateTextToExport () {
  * Exporting
  */
 
+//prints all notes by creating a new text window
 function exportAll() {
   newWin = window.open("");
-  newWin.document.write(generateTextToExport());
+  //date(0) will return the first possible date, so every note will have a more 
+  //recent date than it
+  newWin.document.write(generateTextToExport(new Date(0)));
   newWin.print();
   $('#export-dialog').dialog('close');
 }
 
+//prints all notes from the last 31 days
 function exportLastMonth() {
+  var monthAgoDate = new Date();
+  monthAgoDate.setDate(monthAgoDate.getDate() - 31);
+  newWin = window.open("");
+  newWin.document.write(generateTextToExport(monthAgoDate));
+  newWin.print();
   $('#export-dialog').dialog('close');
 }
 
+//prints the timeline (the window behind the dialog)
 function exportTimeline() {
   $('#export-dialog').dialog('close');
+  window.print();
 }
 
 function closeExportDialog() {
@@ -154,8 +169,6 @@ function exportNotes() {
     close: function() {}
   });
   $('#exportText').html(linksText);
-  //$("#exportText").html(generateTextToExport());
-  //$( "#dialog" ).dialog('open');
   $('#export-dialog').dialog('open');
 }
 
