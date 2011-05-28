@@ -91,17 +91,17 @@ function makeDisplayTrackType(trackType) {
 function generateTextToExport () {
   var text = "";
   var LINE_DELIMITER = "<br />\n";
+
+  //adds each of the notes
   for (var trackName in tracksMap) {
     var track = tracksMap[trackName];
     for (var noteId in track.notes) {
       var note = track.notes[noteId];
       var displayTrackType = makeDisplayTrackType(track.type);
-      text += "Track Name: " + track.name.replace(/<br.*>/ig, " ") + LINE_DELIMITER + 
-              "Track Type: " + displayTrackType + LINE_DELIMITER + 
-              "Date: " + Highcharts.dateFormat('%B %e, %Y', note.date) + LINE_DELIMITER +
-              "Time: " + Highcharts.dateFormat('%H:%M', note.date) + LINE_DELIMITER + 
-              "Type: " + note.type + LINE_DELIMITER + 
-              "Description: " + note.description + LINE_DELIMITER + 
+      text += displayTrackType + ": " + track.name.replace(/<br.*>/ig, " ") + 
+              LINE_DELIMITER + 
+              Highcharts.dateFormat('%B %e, %Y, %H:%M', note.date) + LINE_DELIMITER +
+              note.type + ": " + note.description + LINE_DELIMITER + 
               LINE_DELIMITER;
     }
   }
