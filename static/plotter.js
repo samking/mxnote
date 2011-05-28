@@ -91,6 +91,11 @@ function makeDisplayTrackType(trackType) {
 function generateTextToExport () {
   var text = "";
   var LINE_DELIMITER = "<br />\n";
+  //adds header: Logo, Patient Name, Prepared On
+  text += '<img src="../static/img/logo.png" height="72px"/>';
+  text += SMART.record.full_name + ' - ' + SMART.record.id + ".  ";
+  text += "Report prepared on " + (new Date()).toUTCString() + LINE_DELIMITER;
+  text += LINE_DELIMITER;
 
   //adds each of the notes
   for (var trackName in tracksMap) {
