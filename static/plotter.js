@@ -624,6 +624,7 @@ $(document).ready(function() {
       renderTo: 'chart-container-1',
       defaultSeriesType: 'scatter',
       zoomType: 'x',
+      marginTop: 70,
       events: {
         click: function(e) {
             /* prevent Chrome from interpreting a click on reset zoom as a 
@@ -655,7 +656,7 @@ $(document).ready(function() {
       text: SMART.record.full_name + ' - ' + SMART.record.id
     },
     subtitle: {
-      text: '[click on any colored line to add a note]'
+      text: 'Click and drag to zoom.<br/>[click on any colored line to add a note]'
     },
     xAxis: {
       type: 'datetime',
