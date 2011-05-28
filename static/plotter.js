@@ -77,6 +77,16 @@ function loadDataFromCookie() {
   }
 }
 
+//Changes an internal trackType (prob, med, lab) into a pretty display track
+//type (Problem, Medication, Lab).
+//If there is an undefined trackType, returns it unchanged.
+function makeDisplayTrackType(trackType) {
+  if (trackType == 'prob') return "Problem";
+  if (trackType == 'med') return "Medication";
+  if (trackType == 'lab') return "Lab";
+  return trackType;
+}
+
 //returns a string containing all user notes formatted to output in HTML
 function generateTextToExport () {
   var text = "";
@@ -85,8 +95,9 @@ function generateTextToExport () {
     var track = tracksMap[trackName];
     for (var noteId in track.notes) {
       var note = track.notes[noteId];
+      var displayTrackType = makeDisplayTrackType(track.type);
       text += "Track Name: " + track.name.replace(/<br.*>/ig, " ") + LINE_DELIMITER + 
-              "Track Type: " + track.type + LINE_DELIMITER + 
+              "Track Type: " + displayTrackType + LINE_DELIMITER + 
               "Date: " + Highcharts.dateFormat('%B %e, %Y', note.date) + LINE_DELIMITER +
               "Time: " + Highcharts.dateFormat('%H:%M', note.date) + LINE_DELIMITER + 
               "Type: " + note.type + LINE_DELIMITER + 
