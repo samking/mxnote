@@ -442,9 +442,9 @@ function dateToTime(onset) {
 function resizeChart() {
   var count = countVisible();
   if (count <= 10) {
-    height = 620;
+    height = 500;
   } else {
-    height = count * 62;
+    height = count * 50;
   }
   $('#chart-container-1').css('height', String(height) + 'px');
   chart1.setSize(window.innerWidth, height);
@@ -660,8 +660,8 @@ $(document).ready(function() {
         hour: '%b %e %H:%M'
       },
       maxZoom: 3600000, // one hour
-      maxPadding: .4,
-      minPadding: .4,
+      maxPadding: .2,
+      minPadding: .2,
       labels: {
         rotation: -90,
         y: 25
