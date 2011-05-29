@@ -311,6 +311,7 @@ function fetchLabs(labResult) {
     index = getIndex(lab_name);
     lab_desc = labDesc[index];
     colorVal = getIntensity(value, index);
+    descForY = labDesc[index];
 
     // Assuming that quotes have been stripped off for everything.
 
@@ -318,14 +319,17 @@ function fetchLabs(labResult) {
      * Jason - you wanted name, desc (with values in it), date and colorVal - UNCOMMENT FOLLOWING*/
      name = lab_name.value;
      if (lab_desc == undefined)
+     {
         desc = "Value: " + value + unit;
+        descForY = lab_name; //since we don't have a clean name for it.
+     }
      else
         desc = lab_desc + " " + "Value: " + value + unit;
      date = lab_date;
      colorVal = colorVal;
 
     // OLD CALL ==> addLab(sanitize(lab_name.value), lab_desc, lab.normalMinValue + lab.normalMinUnit, colorVal);
-
+    // NEW CALL FOR JASON ==> addLab(lab_name, descForY, desc, dateToTime(sanitize(date)), colorVal);
     addLab(lab_name, desc, dateToTime(sanitize(date)), colorVal);
   });
 }
