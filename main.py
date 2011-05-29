@@ -32,6 +32,7 @@ class index:
     <script src="../static/jquery-git.js"></script> 
     <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js"></script> 
     <script src="../static/js/highcharts.js"></script> 
+    <script src="../static/scheme.js"></script> 
     <script src="../static/plotter.js"></script> 
   </head> 
   <body bgcolor="#FFF"> 
