@@ -418,7 +418,6 @@ function switchScheme(scheme) {
     }
   }
   
-  console.log("buttons updated");
   if (chart1) chart1.destroy();
   initializeChart();
 
@@ -517,7 +516,7 @@ function plotTrack(trackName) {
  */
 function loadData() {
   if (!chart1) return;
-  console.log("loading data");
+
   var numToShow = 0;
   for (trackName in tracksMap) {
     if (isInDiseaseScheme(trackName, curScheme)) {
@@ -774,6 +773,8 @@ $(document).ready(function() {
   
   SMART.PROBLEMS_get(fetchProblems);
   SMART.MEDS_get(fetchMeds);
+  
+  /* we want to chain-load the DOM changes after we finish fetching results. */
   SMART.LAB_RESULTS_get(function(labResults) {
     fetchLabs(labResults);
     setTimeout(function() {
