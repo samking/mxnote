@@ -669,7 +669,7 @@ function initializeChart() {
     tooltip: {
       formatter: function() {
         return '<b>' + Highcharts.dateFormat('%Y %B %e', this.x) + 
-          '</b><br/>' + getDescription(this.series, this.x) + "<br/>" + this.y;
+          '</b><br/>' + getDescription(this.series, this.x);
       }
     },
     series: [],
