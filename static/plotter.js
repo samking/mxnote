@@ -9,7 +9,6 @@ var colors = {
   'med'  : '#F7A700 '
 }
 
-
 /**
  * COOKIES
  */
@@ -63,17 +62,6 @@ function loadDataFromCookie() {
     //copies and displays each note into the current track
     track = tracksMap[trackName];
     track.notes = cookieTracks[trackName].notes;
-    for (var noteId in track.notes) {
-      var note = track.notes[noteId];
-      var series = chart1.series[track.id];
-      series.addPoint({
-        x: note.date, 
-        y: series.data[0].y, 
-        marker: {
-          symbol: 'url(../static/img/' + note.type + '_note.png)'
-        }
-      });
-    }
   }
 }
 
@@ -111,6 +99,7 @@ function exportNotes() {
  * SMART fetching
  */
 
+/* does manual word wrap for all the names */
 function addLineBreaks(str) {
   var words = String(str).split(' ');
   var retValue = "";
@@ -125,6 +114,7 @@ function addLineBreaks(str) {
   return retValue;
 }
 
+/* removes quotes as necessary */
 function sanitize (str) {
   if (str.substring(0, 1) == '"' && str.substring(str.length - 1) == '"')
     return str.substring(1, str.length - 2);
@@ -331,7 +321,7 @@ function fetchLabs(labResult) {
 
 
 /**
- * Chart stuff
+ * Manipulating tracksMap data structure
  */
 
 function addDataPoint(trackName, description, startTime, endTime, type, colorVal) {
@@ -342,17 +332,7 @@ function addDataPoint(trackName, description, startTime, endTime, type, colorVal
       'type'   : type,
       'events' : [],
       'notes'  : [],
-      'id'     : nextId++,
-      'yVal'   : nextVal
     };
-    chart1.addSeries({
-      name: trackName, 
-      data: [], 
-      showInLegend: false, 
-      visible: false, 
-      color: colors[type], 
-      stickyTracking: false
-    });
     track = tracksMap[trackName];
   }
   var addEvent = true;
@@ -370,23 +350,6 @@ function addDataPoint(trackName, description, startTime, endTime, type, colorVal
       event.colorVal = colorVal;
     track['events'].push(event);
   }
-  
-  var symbol = 'circle';
-  if (colorVal) {
-    symbol = 'url(../static/img/lab' + colorVal.toString() + '.png)';
-  }
-
-  chart1.series[track.id].addPoint({
-    x: startTime, 
-    y: track.yVal, 
-    marker: {symbol: symbol}
-  }); 
-  if (endTime != null)
-    chart1.series[track.id].addPoint({
-      x: endTime, 
-      y: track.yVal, 
-      marker: {symbol: 'circle'}
-    });
 }
 
 function addLab(trackName, description, date, colorVal) {
@@ -422,13 +385,6 @@ function getDescription(series, x) {
   return getNotesText(series, x);
 }
 
-function countVisible() {
-  var count = 0;
-  for (var i = 0; i < chart1.series.length; i++)
-    if (chart1.series[i].visible) count++;
-  return count;
-}
-
 function dateToTime(onset) {
   /* assume it's yyyy-mm-dd */
   var str = String(onset);
@@ -442,8 +398,52 @@ function dateToTime(onset) {
   return Date.UTC(parseInt(year), parseInt(month), parseInt(day), 0, 0, 0);
 }
 
+/* Switches the scheme. Destroys the current chart and re-initializes with
+ * relevant series.
+ */
+function switchScheme(scheme) {
+  if (scheme == curScheme) return;
+  $('#scheme-status').css('visibility', 'visible');
+  curScheme = scheme;
+  
+  var schemes = ['Cardio', 'T2d', 'Mental'];
+  for (i in schemes) {
+    var s = schemes[i];
+    if (s == curScheme) {
+      $('#' + s + '-button').attr('src', '../static/img/' + s + 
+          '_button_active.png');
+    } else {
+      $('#' + s + '-button').attr('src', '../static/img/' + s + 
+          '_button.png');
+    }
+  }
+  
+  console.log("buttons updated");
+  if (chart1) chart1.destroy();
+  initializeChart();
+
+  /* yuck.  timeouts because loadData is a real pain and completely hangs the
+   * browser.
+   */
+  setTimeout(function() {
+    loadData();
+    setTimeout( function() {
+      resizeChart();
+      chart1.redraw();
+      $('#scheme-status').css('visibility', 'hidden');
+    }, 300);
+  }, 100);
+}
+
+/**
+ * Chart stuff
+ */
+
+/*
+ * Looks at how many series we're displaying and sizes the chart appropriately
+ */
 function resizeChart() {
-  var count = countVisible();
+  var count = chart1.series.length;
   if (count <= 10) {
     height = 500;
   } else {
@@ -453,83 +453,6 @@ function resizeChart() {
   chart1.setSize(window.innerWidth, height);
 }
 
-function showAppropriateLabs() {
-  var track = tracksMap['Labs'];
-  var points = chart1.series[track.id].data;
-
-  while (0 < points.length) {
-    points[0].remove();
-  }
-
-  for (var i = 0; i < track.events.length; i++) {
-    var event = track.events[i];
-    if (isInDiseaseScheme(event.description, curScheme)) {
-      chart1.series[track.id].addPoint({x: event.startTime, y: track.yVal, 
-          name: event.description, 
-          marker: {symbol: 'url(../static/img/lab' + 
-          event.colorVal.toString() + '.png)'}}); 
-    }
-  }
-}
-
-/* TODO: show/hide labs based on scheme */
-function switchScheme(scheme) {
-  if (scheme == curScheme) return;
-  curScheme = scheme;
-  
-  $('#scheme-status').css('visibility', 'visible');
-  $.getScript("../static/scheme.js", function() {
-    var numToShow = 0;
-    for (trackName in tracksMap) {
-      var seriesId = tracksMap[trackName].id;
-      var showLabs = false;
-      if (trackName == 'Labs') {
-        showAppropriateLabs();
-        showLabs = chart1.series[tracksMap['Labs'].id].data.length > 0;
-      }
-      if (showLabs || isInDiseaseScheme(trackName, scheme)) {
-        numToShow ++;
-        series = chart1.series[seriesId];
-        if (!series.visible) {
-          series.show();
-          series.options.showInLegend = true;
-        }
-      } else {
-        series = chart1.series[seriesId];
-        if (series.visible) {
-          series.hide();
-          //series.options.showInLegend = false;
-        }
-      }
-    }
-    if (numToShow == 0) {
-        $('#no-items-msg').html('No items to display.');
-        $('#show-no-items').css('display', 'inline');
-        $('#export-button').css('display', 'none');
-      } else {
-        $('#show-no-items').css('display', 'none');
-        $('#export-button').css('display', 'inline');
-      }
-    chart1.isDirtyLegend = true;
-    $('#scheme-status').css('visibility', 'hidden');
-    setTimeout(function() {
-      resizeChart();
-      chart1.redraw();
-    }, 300);
-  });
-  
-  var schemes = ['Cardio', 'T2d', 'Mental'];
-  for (i in schemes) {
-    var s = schemes[i];
-    if (s == scheme) {
-      $('#' + s + '-button').attr('src', '../static/img/' + s + 
-          '_button_active.png');
-    } else {
-      $('#' + s + '-button').attr('src', '../static/img/' + s + 
-          '_button.png');
-    }
-  }
-}
 
 /* HighCharts transforms the labels, but doesn't apply styles properly 
  * if it has a <br/>...
@@ -542,96 +465,86 @@ function colorize(html, color) {
   }
   return res;
 }
-
-$(document).ready(function() {
-  function createDialog(track, series, xVal) {
-    $('#date').text(Highcharts.dateFormat('Date: %B %e, %Y', xVal));
-    $('#time').text(Highcharts.dateFormat('Time: %H:%M', xVal));
-    $('#track-title').text(track.name);
-    var desc = getNotesText(series, xVal);
-    // Do not open a dialog if we click an event
-    if (desc == null && getDescription(series, xVal) != null) return;
-    $( '#textOfNote' ).val(desc);
-    //if the current event already has a type, default it to that
-    var type = getNotesProperty(series, xVal, 'type');
-    if (type != undefined) 
-      $('#typeOfNote').val(type);
-    var buttons = [
-      { 
-        text: 'Save Note',
-        click: function() {
-          if ($('#textOfNote').val() == '') {
-            return;
-          }
-          if (desc === null) {
-            track.notes.push( {
-              'date'        : xVal,
-              'description' : $('#textOfNote').val(),
-              'type'        : $('#typeOfNote').val()
-            });
-            series.addPoint({
-              x: xVal,
-              y: series.data[0].y, 
-              marker: {
-                symbol: 'url(../static/img/' + $('#typeOfNote').val() + '_note.png)'
-              }
-            });
-
-          } else {
-            for (var idx = 0; idx < track.notes.length; idx++) {
-              if (track.notes[idx].date == xVal) {
-                track.notes[idx].description = $('#textOfNote').val();
-                break;
-              }
-            }
-          }
-          saveDataToCookie();
-          $( this ).dialog( 'close' );
-        }
-      },
-      {
-        text: 'Cancel',
-        click: function() {
-          $( this ).dialog( 'close' );
-        }
-      },
-    ];
-      
-    if (desc != null) {
-      buttons.splice(1, 0,
-        {
-          text: "Delete", 
-          click: function() {
-            for (var i = 0; i < track.notes.length; i++) {
-              if (track.notes[i].date == xVal) {
-                track.notes.splice(i, 1);
-                break;
-              }
-            }
-            for (var i = 0; i < series.data.length; i++) {
-              if (series.data[i].x == xVal) {
-                series.data[i].remove();
-                break;
-              }
-            }
-            saveDataToCookie();
-            $ ( this ).dialog ( 'close' );
-          }
-        });
+/*
+ * Note: can hang the browser and prevent changes to the DOM...
+ */
+function plotTrack(trackName) {
+  var track = tracksMap[trackName];
+  chart1.addSeries({
+      name: trackName, 
+      data: [], 
+      color: colors[track.type], 
+      stickyTracking: false
+  }, false, false);
+  track.id = nextId++;
+  track.yVal = nextVal++;
+  
+  for (var i = 0; i < track.events.length; i++) {
+    var event = track.events[i];
+    var symbol = 'circle';
+    if (event.colorVal) {
+      symbol = 'url(../static/img/lab' + event.colorVal.toString() + '.png)';
     }
-    $( '#dialog' ).dialog({
-      autoOpen: false,
-      height: 480,
-      width: 600,
-      modal: true,
-      title: (desc === null ? 'New Note' : 'Edit Note'),
-      buttons: buttons,
-      close: function() {
-      }
+
+    chart1.series[track.id].addPoint({
+      x: event.startTime, 
+      y: track.yVal, 
+      marker: {symbol: symbol}
+    }); 
+    if (event.endTime != null)
+      chart1.series[track.id].addPoint({
+        x: event.endTime, 
+        y: track.yVal, 
+        marker: {symbol: 'circle'}
     });
-    $( "#dialog" ).dialog('open');
   }
   
+  for (var noteId in track.notes) {
+    var note = track.notes[noteId];
+    var series = chart1.series[track.id];
+    series.addPoint({
+      x: note.date, 
+      y: track.yVal, 
+      marker: {
+        symbol: 'url(../static/img/' + note.type + '_note.png)'
+      }
+    });
+  }
+}
+
+/* loads the data from tracksMap into the chart.
+ * assumes chart is initialized.
+ */
+function loadData() {
+  if (!chart1) return;
+  console.log("loading data");
+  var numToShow = 0;
+  for (trackName in tracksMap) {
+    if (isInDiseaseScheme(trackName, curScheme)) {
+      numToShow ++;
+      plotTrack(trackName);
+    }
+  }
+  if (numToShow == 0) {
+    $('#no-items-msg').html('No items to display.');
+    $('#show-no-items').css('display', 'inline');
+    $('#export-button').css('display', 'none');
+  } else {
+    $('#show-no-items').css('display', 'none');
+    $('#export-button').css('display', 'inline');
+  }
+}
+
+function initializeChart() {
+  /* clear out display data */
+  nextVal = 1;
+  nextId = 0;
+  for (key in tracksMap) {
+    tracksMap[key].yVal = null;
+    tracksMap[key].id = null;
+  }
+  
+  /* make the new chart */
   chart1 = new Highcharts.Chart({
     chart: {
       renderTo: 'chart-container-1',
@@ -691,8 +604,9 @@ $(document).ready(function() {
       labels: {
         formatter: function() {
           for (key in tracksMap) {
-            if (chart1.series[tracksMap[key].id].visible && 
-                tracksMap[key].yVal == this.value)
+            var track = tracksMap[key];
+            if (chart1.series[track.id] && track.yVal == this.value &&
+                chart1.series[track.id].visible)
               return colorize(key, colors[tracksMap[key].type]);
           }
           return '';
@@ -761,20 +675,110 @@ $(document).ready(function() {
     },
     series: [],
   });
- 
+}
+/* makes the save note dialog */
+function createDialog(track, series, xVal) {
+  $('#date').text(Highcharts.dateFormat('Date: %B %e, %Y', xVal));
+  $('#time').text(Highcharts.dateFormat('Time: %H:%M', xVal));
+  $('#track-title').text(track.name);
+  var desc = getNotesText(series, xVal);
+  // Do not open a dialog if we click an event
+  if (desc == null && getDescription(series, xVal) != null) return;
+  $( '#textOfNote' ).val(desc);
+  //if the current event already has a type, default it to that
+  var type = getNotesProperty(series, xVal, 'type');
+  if (type != undefined) 
+    $('#typeOfNote').val(type);
+  var buttons = [
+    { 
+      text: 'Save Note',
+      click: function() {
+        if ($('#textOfNote').val() == '') {
+          return;
+        }
+        if (desc === null) {
+          track.notes.push( {
+            'date'        : xVal,
+            'description' : $('#textOfNote').val(),
+            'type'        : $('#typeOfNote').val()
+          });
+          series.addPoint({
+            x: xVal,
+            y: series.data[0].y, 
+            marker: {
+              symbol: 'url(../static/img/' + $('#typeOfNote').val() + '_note.png)'
+            }
+          });
+
+        } else {
+          for (var idx = 0; idx < track.notes.length; idx++) {
+            if (track.notes[idx].date == xVal) {
+              track.notes[idx].description = $('#textOfNote').val();
+              break;
+            }
+          }
+        }
+        saveDataToCookie();
+        $( this ).dialog( 'close' );
+      }
+    },
+    {
+      text: 'Cancel',
+      click: function() {
+        $( this ).dialog( 'close' );
+      }
+    },
+  ];
+    
+  if (desc != null) {
+    buttons.splice(1, 0,
+      {
+        text: "Delete", 
+        click: function() {
+          for (var i = 0; i < track.notes.length; i++) {
+            if (track.notes[i].date == xVal) {
+              track.notes.splice(i, 1);
+              break;
+            }
+          }
+          for (var i = 0; i < series.data.length; i++) {
+            if (series.data[i].x == xVal) {
+              series.data[i].remove();
+              break;
+            }
+          }
+          saveDataToCookie();
+          $ ( this ).dialog ( 'close' );
+        }
+      });
+  }
+  $( '#dialog' ).dialog({
+    autoOpen: false,
+    height: 480,
+    width: 600,
+    modal: true,
+    title: (desc === null ? 'New Note' : 'Edit Note'),
+    buttons: buttons,
+    close: function() {
+    }
+  });
+  $( "#dialog" ).dialog('open');
+}
+
+/**
+ *  document.ready.  main, in a sense. :)
+ */
+$(document).ready(function() {
+  initializeChart();
   loadDataFromCookie();
   
   SMART.PROBLEMS_get(fetchProblems);
   SMART.MEDS_get(fetchMeds);
-  
-  /* Hacky.  We only want to load the chart after labs are finished loading. */
   SMART.LAB_RESULTS_get(function(labResults) {
     fetchLabs(labResults);
     setTimeout(function() {
       $('#chart').css('display', 'inline');
       $('#loading').css('display', 'none');
-      chart1.redraw();
-      resizeChart();
     }, 200);
   });
 });
