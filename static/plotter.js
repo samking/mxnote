@@ -55,8 +55,9 @@ function loadDataFromCookie() {
   cookieTracks = JSON.parse(cookieTracks);
   for (var trackName in cookieTracks) {
     var track  = cookieTracks[trackName];
+    if (!track.yName) track.yName = trackName;
     //copies the current track from the cookie
-    addDataPoint(trackName, track.events[0].description, 
+    addDataPoint(trackName, track.yName, track.events[0].description, 
                  track.events[0].startTime, track.events[0].endTime, 
                  track.type);
     //copies and displays each note into the current track
@@ -161,7 +162,7 @@ function fetchProblems(probs) {
   
   for (var i = 0; i < dataPoints.length; i++) {
     var pt = dataPoints[i];
-    addDataPoint(pt.name, pt.desc, pt.start, pt.end, pt.type);
+    addDataPoint(pt.name, pt.name, pt.desc, pt.start, pt.end, pt.type);
   }
 }
 
@@ -198,7 +199,7 @@ function fetchMeds(meds) {
   dataPoints.sort(cmpDataPts);
   for (var i = 0; i < dataPoints.length; i++) {
     var pt = dataPoints[i];
-    addDataPoint(pt.name, pt.desc, pt.start, pt.end, pt.type);
+    addDataPoint(pt.name, pt.name, pt.desc, pt.start, pt.end, pt.type);
   }
 }
 
@@ -315,8 +316,6 @@ function fetchLabs(labResult) {
 
     // Assuming that quotes have been stripped off for everything.
 
-    /*
-     * Jason - you wanted name, desc (with values in it), date and colorVal - UNCOMMENT FOLLOWING*/
      name = lab_name.value;
      if (lab_desc == undefined)
      {
@@ -328,9 +327,7 @@ function fetchLabs(labResult) {
      date = lab_date;
      colorVal = colorVal;
 
-    // OLD CALL ==> addLab(sanitize(lab_name.value), lab_desc, lab.normalMinValue + lab.normalMinUnit, colorVal);
-    // NEW CALL FOR JASON ==> addLab(lab_name, descForY, desc, dateToTime(sanitize(date)), colorVal);
-    addLab(lab_name, desc, dateToTime(sanitize(date)), colorVal);
+    addLab(lab_name, descForY, desc, dateToTime(sanitize(date)), colorVal);
   });
 }
 
@@ -339,7 +336,7 @@ function fetchLabs(labResult) {
  * Manipulating tracksMap data structure
  */
 
-function addDataPoint(trackName, description, startTime, endTime, type, colorVal) {
+function addDataPoint(trackName, yName, description, startTime, endTime, type, colorVal) {
   var track = tracksMap[trackName];
   if (track == undefined) {
     tracksMap[trackName] = {
@@ -347,6 +344,7 @@ function addDataPoint(trackName, description, startTime, endTime, type, colorVal
       'type'   : type,
       'events' : [],
       'notes'  : [],
+      'yName'  : yName
     };
     track = tracksMap[trackName];
   }
@@ -367,8 +365,8 @@ function addDataPoint(trackName, description, startTime, endTime, type, colorVal
   }
 }
 
-function addLab(trackName, description, date, colorVal) {
-  addDataPoint(trackName, description, date, null, 'lab', colorVal);
+function addLab(trackName, yName, description, date, colorVal) {
+  addDataPoint(trackName, yName, description, date, null, 'lab', colorVal);
 }
   
 //returns the named property from a note if the note exists
@@ -621,7 +619,7 @@ function initializeChart() {
             var track = tracksMap[key];
             if (chart1.series[track.id] && track.yVal == this.value &&
                 chart1.series[track.id].visible)
-              return colorize(key, colors[tracksMap[key].type]);
+              return colorize(track.yName, colors[tracksMap[key].type]);
           }
           return '';
         }
