@@ -354,9 +354,35 @@ function addDataPoint(trackName, yName, description, startTime, endTime, type, c
   }
   var addEvent = true;
   for (var currEvent in track.events) {
+
     if (currEvent.description == description) addEvent = false;
   }
+  if (type == 'lab')
+  {
+      //alert(track.events.length);
+      
+      var lastOne = track.events.length - 1;
+      if (lastOne >= 0)
+      {
+         //gross parsing.
+         var lastDesc = track.events[lastOne].description;
+         var old = lastDesc.replace(/[A-Za-z-$: ]/g, "");
+         var newVal = description.replace(/[A-Za-z-$: ]/g, "");
+         old = old.replace(/\//g, "");
+         newVal = newVal.replace(/\//g, "");
+         
+         alert(old);
+         alert(newVal);
 
+         //TODO : Fix by adding parseFloat calls 
+         if (old > newVal)
+            alert('down');
+         else if (old < newVal)
+            alert('up');
+         else
+            alert('same');
+      }
+  }
   if (addEvent) {
     var event = {
         'description' : description,
@@ -367,6 +393,12 @@ function addDataPoint(trackName, yName, description, startTime, endTime, type, c
       event.colorVal = colorVal;
     track['events'].push(event);
   }
+}
+
+// Checks that an input string is a decimal number, with an optional +/- sign character.
+// var isDecimal_re     = /^\s*(\+|-)?((\d+(\.\d+)?)|(\.\d+))\s*$/;
+function isDecimal (s) {
+    return String(s).search (isDecimal_re) != -1
 }
 
 function addLab(trackName, yName, description, date, colorVal) {
