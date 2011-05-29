@@ -231,7 +231,7 @@ function fetchProblems(probs) {
     var onsetDate = String(val.onset);
     var xVal = dateToTime(sanitize(onsetDate));
     dataPoints.push( {
-      'name': addLineBreaks(val.probname.value), 
+      'name': val.probname.value, 
       'desc': val.probname.value, 
       'start': xVal,
       'end': endVal,
@@ -244,7 +244,7 @@ function fetchProblems(probs) {
   
   for (var i = 0; i < dataPoints.length; i++) {
     var pt = dataPoints[i];
-    addDataPoint(pt.name, pt.name, pt.desc, pt.start, pt.end, pt.type);
+    addDataPoint(pt.name, addLineBreaks(pt.name), pt.desc, pt.start, pt.end, pt.type);
   }
 }
 
@@ -271,7 +271,7 @@ function fetchMeds(meds) {
     var drugName = single.drugname.value.replace(/"/g, "");
      
     dataPoints.push( {
-      'name' : addLineBreaks(sanitize(single.drugname.value)),
+      'name' : sanitize(single.drugname.value),
       'desc' : drugName + "<br/>" + single.instruct.value.replace(/"/g, "") + "<br/>" + 
                single.qval.value.replace(/"/g, "") + " " + single.qUnit.value.replace(/"/g, "") + "<br/>" + single.freq_val.value.replace(/"/g, "") + 
                " " + single.freq_unit.value.replace(/"/g, ""),
@@ -284,7 +284,7 @@ function fetchMeds(meds) {
   dataPoints.sort(cmpDataPts);
   for (var i = 0; i < dataPoints.length; i++) {
     var pt = dataPoints[i];
-    addDataPoint(pt.name, pt.name, pt.desc, pt.start, pt.end, pt.type);
+    addDataPoint(pt.name, addLineBreaks(pt.name), pt.desc, pt.start, pt.end, pt.type);
   }
 }
 
@@ -562,7 +562,6 @@ function switchScheme(scheme) {
     loadData();
     setTimeout( function() {
       resizeChart();
-      chart1.redraw();
       $('#scheme-status').css('visibility', 'hidden');
     }, 300);
   }, 100);
@@ -573,7 +572,9 @@ function switchScheme(scheme) {
  */
 
 /*
- * Looks at how many series we're displaying and sizes the chart appropriately
+ * Looks at how many series we're displaying and sizes the chart appropriately.
+ * For some reason, sometimes it screws up the x-axis, etc, so we manually 
+ * force a redraw.
  */
 function resizeChart() {
   var count = chart1.series.length;
@@ -583,7 +584,11 @@ function resizeChart() {
     height = count * 50;
   }
   $('#chart-container-1').css('height', String(height) + 'px');
-  chart1.setSize(window.innerWidth, height, false);
+  chart1.setSize(chart1.chartWidth, height, true);
+  setTimeout( function() {
+    chart1.isDirtyBox = true;
+    chart1.redraw();
+  }, 400);
 }
 
 
@@ -821,7 +826,8 @@ function initializeChart() {
           }
         },
         marker: {
-          symbol: 'circle'
+          symbol: 'circle',
+          radius: 7
         }
       },
     },
@@ -928,6 +934,7 @@ function createDialog(track, series, xVal) {
  */
 $(document).ready(function() {
   initializeChart();
+  chart1.redraw();
   loadDataFromCookie();
   
   SMART.PROBLEMS_get(fetchProblems);
