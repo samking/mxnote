@@ -208,8 +208,9 @@ function addLineBreaks(str) {
 }
 
 function sanitize (str) {
-  if (str.substring(0, 1) == '"' && str.substring(str.length - 1) == '"')
-    return str.substring(1, str.length - 2);
+  if (str.substring(0, 1) == '"' && str.substring(str.length - 1) == '"') {
+    return str.substring(1, str.length - 1);
+  }
   return str;
 }
 
@@ -385,6 +386,7 @@ function fetchLabs(labResult) {
     }
   }
 
+  var labs = [];
   lab_results.each(function(i, lab)
   {
     lab_name = lab.labTitle;
@@ -412,8 +414,19 @@ function fetchLabs(labResult) {
         desc = lab_desc + " " + "Value: " + value + unit;
      date = lab_date;
 
-    addLab(lab_name, descForY, desc, dateToTime(sanitize(date)), colorVal);
+    var lab = {};
+    lab.name = lab_name;
+    lab.yDesc = descForY;
+    lab.desc = desc;
+    lab.start = dateToTime(sanitize(date));
+    lab.color = colorVal;
+    labs.push(lab);
   });
+  
+  labs.sort(cmpDataPts);
+  for (var i = 0; i < labs.length; i++) {
+    addLab(labs[i].name, labs[i].yDesc, labs[i].desc, labs[i].start, labs[i].color);
+  }
 }
 
 
@@ -517,8 +530,8 @@ function dateToTime(onset) {
   idx = str.search('-');
   var month = str.substring(0, idx);
   var day = str.substring(idx + 1);
-  
-  return Date.UTC(parseInt(year), parseInt(month), parseInt(day), 0, 0, 0);
+
+  return Date.UTC(parseInt(year, 10), parseInt(month, 10) - 1, parseInt(day, 10), 0, 0, 0);
 }
 
 /* Switches the scheme. Destroys the current chart and re-initializes with
