@@ -578,7 +578,7 @@ function initializeChart() {
             var minDist = 0;
             var minKey = '';
             for (key in tracksMap) {
-              if (this.series[tracksMap[key].id].visible) {
+              if (tracksMap[key].yVal) {
                 var dist = Math.abs(tracksMap[key].yVal - y);
                 if (minKey == '' || dist < minDist) {
                   minKey = key;
