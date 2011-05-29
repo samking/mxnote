@@ -74,6 +74,19 @@ class index:
         <textarea id="textOfNote" cols=60 rows=7 name="textOfNote" class="text ui-widget-content ui-corner-all"></textarea> 
       </form> 
     </div>
+    <div id="lab-key" style="display: none; padding: 5px; position: absolute; top:123px; right: 30px; font-family: Lucida Grande, sans-serif; font-size: 12px; color: #6D869F; border-style: solid; border-width: 1px; border-radius: 5px; -moz-border-radius: 5px; border-color: grey;">
+      Lab Key
+      <table>
+        <tr>
+          <td><img src="../static/img/lab_1.png" /> normal</td>
+          <td><img src="../static/img/lab_2.png" /> borderline</td>
+        </tr>
+        <tr>
+          <td><img src="../static/img/lab_3.png" /> high</td>
+          <td><img src="../static/img/lab_4.png" /> very high</td>
+        </tr>
+      </table>
+    </div>
   </body> 
 </html>"""
 
