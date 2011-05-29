@@ -9,6 +9,8 @@ var colors = {
   'med'  : '#F7A700 '
 }
 
+var LINE_DELIMITER = "<br />\n";
+
 /**
  * COOKIES
  */
@@ -63,6 +65,17 @@ function loadDataFromCookie() {
     //copies and displays each note into the current track
     track = tracksMap[trackName];
     track.notes = cookieTracks[trackName].notes;
+    for (var noteId in track.notes) {
+      var note = track.notes[noteId];
+      var series = chart1.series[track.id];
+      series.addPoint({
+        x: note.date, 
+        y: series.data[0].y, 
+        marker: {
+          symbol: 'url(../static/img/' + note.type + '_note.png)'
+        }
+      });
+    }
   }
 }
 
@@ -76,35 +89,103 @@ function makeDisplayTrackType(trackType) {
   return trackType;
 }
 
-//returns a string containing all user notes formatted to output in HTML
-function generateTextToExport () {
-  var text = "";
-  var LINE_DELIMITER = "<br />\n";
+//returns >0 if noteA is more recent than noteB, 0 if they're equal, else <0 
+function noteSortCmpFn(noteA, noteB) {
+  return new Date(noteA.date) - new Date(noteB.date);
+}
 
-  //adds each of the notes
+//returns a string containing all user notes formatted to output in HTML
+//earliestDate represents the earliest date that will be printed
+//the string will be in sorted order by date
+function generateTextToExport (earliestDate) {
+  var text = "";
+  //adds header: Logo, Patient Name, Prepared On
+  text += '<img src="../static/img/logo.png" height="72px"/>';
+  text += SMART.record.full_name + ' - ' + SMART.record.id + ".  ";
+  text += "Report prepared on " + (new Date()).toUTCString() + LINE_DELIMITER;
+  text += LINE_DELIMITER;
+
+  var notes = [];
+  //adds each of the notes to an array
   for (var trackName in tracksMap) {
     var track = tracksMap[trackName];
     for (var noteId in track.notes) {
       var note = track.notes[noteId];
       var displayTrackType = makeDisplayTrackType(track.type);
-      text += displayTrackType + ": " + track.name.replace(/<br.*>/ig, " ") + 
-              LINE_DELIMITER + 
-              Highcharts.dateFormat('%B %e, %Y, %H:%M', note.date) + LINE_DELIMITER +
-              note.type + ": " + note.description + LINE_DELIMITER + 
-              LINE_DELIMITER;
+      if (new Date(note.date) >= earliestDate) {
+        notes.push(note);
+      }
     }
+  }
+  //sorts the array
+  notes.sort(noteSortCmpFn);
+  //prints the array
+  for (var noteId in notes) {
+    var note = notes[noteId];
+    text += displayTrackType + ": " + track.name.replace(/<br.*>/ig, " ") + 
+            LINE_DELIMITER + 
+            Highcharts.dateFormat('%B %e, %Y, %H:%M', note.date) + 
+            LINE_DELIMITER +
+            note.type + ": " + note.description + LINE_DELIMITER + 
+            LINE_DELIMITER;
   }
   return text;
 }
+
 
 /**
  * Exporting
  */
  
-function exportNotes() {
+//prints all notes by creating a new text window
+function exportAll() {
   newWin = window.open("");
-  newWin.document.write(generateTextToExport());
+  //date(0) will return the first possible date, so every note will have a more 
+  //recent date than it
+  newWin.document.write(generateTextToExport(new Date(0)));
   newWin.print();
+  $('#export-dialog').dialog('close');
+}
+
+//prints all notes from the last 31 days
+function exportLastMonth() {
+  var monthAgoDate = new Date();
+  monthAgoDate.setDate(monthAgoDate.getDate() - 31);
+  newWin = window.open("");
+  newWin.document.write(generateTextToExport(monthAgoDate));
+  newWin.print();
+  $('#export-dialog').dialog('close');
+}
+
+//prints the timeline (the window behind the dialog)
+function exportTimeline() {
+  $('#export-dialog').dialog('close');
+  window.print();
+}
+
+function closeExportDialog() {
+  $('#export-dialog').dialog('close');
+}
+
+function exportNotes() {
+  var linksText = '<a href="javascript:void(0)" onclick="exportTimeline();">' +
+                  'Print Timeline</a>' + LINE_DELIMITER +
+                  '<a href="javascript:void(0)" onclick="exportLastMonth();">' +
+                  'Print Last Month of Notes</a>' + LINE_DELIMITER + 
+                  '<a href="javascript:void(0)" onclick="exportAll();">' +
+                  'Print All Notes</a>' + LINE_DELIMITER + 
+                  '<a href="javascript:void(0)" onclick="closeExportDialog();">' +
+                  'Close</a>' + LINE_DELIMITER;
+  $( '#export-dialog' ).dialog({
+    autoOpen: false,
+    height: 200,
+    width: 300,
+    modal: true,
+    title: 'Print...',
+    close: function() {}
+  });
+  $('#exportText').html(linksText);
+  $('#export-dialog').dialog('open');
 }
 
 /**
@@ -126,7 +207,6 @@ function addLineBreaks(str) {
   return retValue;
 }
 
-/* removes quotes as necessary */
 function sanitize (str) {
   if (str.substring(0, 1) == '"' && str.substring(str.length - 1) == '"')
     return str.substring(1, str.length - 2);
@@ -182,7 +262,6 @@ function fetchMeds(meds) {
   .where("?medication sp:frequency ?freq")
   .where("?freq sp:value ?freq_val")
   .where("?freq sp:unit ?freq_unit");
-
 
   var dataPoints = [];
   med_names.each(function(i, single)

@@ -55,6 +55,9 @@ class index:
         <img src="../static/img/print_button.png" height=30px onClick="exportNotes()"/></div>
       </div>
     </div>
+    <div id="export-dialog" style="display: none;">
+      <p id="exportText"></p>
+    </div>
     <div id="scheme-status" style="visibility: hidden; text-align: center; margin-top: 30px; margin-left: auto; margin-right: auto; font-family: helvetica, sans-serif;">Switching schemes.  Please be patient...</div>
     <div id="dialog" title="New note" style="display: none;">
       <p id="track-title" style="text-align: center; font-weight: bold;"></p>
