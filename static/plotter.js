@@ -464,7 +464,7 @@ function resizeChart() {
     height = count * 50;
   }
   $('#chart-container-1').css('height', String(height) + 'px');
-  chart1.setSize(window.innerWidth, height);
+  chart1.setSize(window.innerWidth, height, false);
 }
 
 
@@ -596,7 +596,7 @@ function initializeChart() {
       text: SMART.record.full_name + ' - ' + SMART.record.id
     },
     subtitle: {
-      text: 'Click and drag to zoom.<br/>[click on any colored line to add a note]'
+      text: '[click on any colored line to add a note]<br/>[click and drag to zoom]'
     },
     xAxis: {
       type: 'datetime',
