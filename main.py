@@ -51,11 +51,12 @@ class index:
         <div id="no-items-msg" style="margin-top: 200px; text-align: center; font-size: 250%; font-family: Helvetica, sans-serif;">Click on a disease scheme, above.</div>
       </div>
       <div id="export-button" style="display: none; position: absolute; top: 20px; right: 30px;">
-        <img src="../static/img/export_button.png" height=30px onClick="exportNotes()"/></div>
+        <img src="../static/img/print_button.png" height=30px onClick="exportNotes()"/></div>
       </div>
     </div>
     <div id="scheme-status" style="visibility: hidden; text-align: center; margin-top: 30px; margin-left: auto; margin-right: auto; font-family: helvetica, sans-serif;">Switching schemes.  Please be patient...</div>
     <div id="dialog" title="New note" style="display: none;">
+      <p id="track-title" style="text-align: center; font-weight: bold;"></p>
       <p id="date"></p>
       <p id="time"></p>
       <form> 
@@ -66,7 +67,7 @@ class index:
           <option value="question">question</option>
           <option value="concern">concern</option>
         </select>
-        <textarea id="textOfNote" cols=40 rows=7 name="textOfNote" class="text ui-widget-content ui-corner-all"></textarea> 
+        <textarea id="textOfNote" cols=60 rows=7 name="textOfNote" class="text ui-widget-content ui-corner-all"></textarea> 
       </form> 
     </div>
   </body> 

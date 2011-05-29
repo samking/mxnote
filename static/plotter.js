@@ -531,10 +531,23 @@ function switchScheme(scheme) {
   }
 }
 
+/* HighCharts transforms the labels, but doesn't apply styles properly 
+ * if it has a <br/>...
+ */
+function colorize(html, color) {
+  var res = '';
+  var lns = html.split('<br/>');
+  for (var i = 0; i < lns.length; i++) {
+    res += '<div style="color: ' + color + ';">' + lns[i]  + '</div><br/>';
+  }
+  return res;
+}
+
 $(document).ready(function() {
   function createDialog(track, series, xVal) {
     $('#date').text(Highcharts.dateFormat('Date: %B %e, %Y', xVal));
     $('#time').text(Highcharts.dateFormat('Time: %H:%M', xVal));
+    $('#track-title').text(track.name);
     var desc = getNotesText(series, xVal);
     // Do not open a dialog if we click an event
     if (desc == null && getDescription(series, xVal) != null) return;
@@ -608,10 +621,10 @@ $(document).ready(function() {
     }
     $( '#dialog' ).dialog({
       autoOpen: false,
-      height: 400,
-      width: 430,
+      height: 480,
+      width: 600,
       modal: true,
-      title: track.name + (desc === null ? ': New Note' : ': Edit Note'),
+      title: (desc === null ? 'New Note' : 'Edit Note'),
       buttons: buttons,
       close: function() {
       }
@@ -680,7 +693,7 @@ $(document).ready(function() {
           for (key in tracksMap) {
             if (chart1.series[tracksMap[key].id].visible && 
                 tracksMap[key].yVal == this.value)
-              return key;
+              return colorize(key, colors[tracksMap[key].type]);
           }
           return '';
         }
