@@ -180,16 +180,20 @@ function fetchMeds(meds) {
   .where("?freq sp:value ?freq_val")
   .where("?freq sp:unit ?freq_unit");
 
+
   var dataPoints = [];
   med_names.each(function(i, single)
   {
     var xVal = dateToTime(single.start.value);
     var end = xVal + Math.random() * 365 * 24 * 3600 * 1000;
+  
+    var drugName = single.drugname.value.replace(/"/g, "");
+     
     dataPoints.push( {
       'name' : addLineBreaks(sanitize(single.drugname.value)),
-      'desc' : single.drugname + "<br/>" + single.instruct + "<br/>" + 
-               single.qval + " " + single.qUnit + "<br/>" + single.freq_val + 
-               " " + single.freq_unit,
+      'desc' : drugName + "<br/>" + single.instruct.value.replace(/"/g, "") + "<br/>" + 
+               single.qval.value.replace(/"/g, "") + " " + single.qUnit.value.replace(/"/g, "") + "<br/>" + single.freq_val.value.replace(/"/g, "") + 
+               " " + single.freq_unit.value.replace(/"/g, ""),
       'start': xVal,
       'end'  : end,
       'type' : 'med'
