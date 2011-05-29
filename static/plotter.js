@@ -144,6 +144,8 @@ function fetchProblems(probs) {
   .where("?problem_name_code dcterms:title ?probname")
   .where("?problem sp:onset ?onset");
 
+  var endVal = (new Date()).getTime();
+
   var dataPoints = [];
   problems.each(function(i, val)
   {
@@ -152,8 +154,9 @@ function fetchProblems(probs) {
     dataPoints.push( {
       'name': addLineBreaks(val.probname.value), 
       'desc': val.probname.value, 
-      'start': xVal, 
-      'end': xVal + Math.random() * 365 * 24 * 3600 * 1000, 
+      'start': xVal,
+      'end': endVal,
+      //'end': xVal + Math.random() * 365 * 24 * 3600 * 1000, 
       'type': 'prob'
     });
   });
@@ -366,21 +369,24 @@ function addDataPoint(trackName, yName, description, startTime, endTime, type, c
       {
          //gross parsing.
          var lastDesc = track.events[lastOne].description;
-         var old = lastDesc.replace(/[A-Za-z-$: ]/g, "");
-         var newVal = description.replace(/[A-Za-z-$: ]/g, "");
+         var old = lastDesc.replace(/[A-Za-z-$:% ]/g, "");
+         var newVal = description.replace(/[A-Za-z-$:% ]/g, "");
          old = old.replace(/\//g, "");
          newVal = newVal.replace(/\//g, "");
-         
+         /*
+          * Jason, add the arrow stuff here!
          alert(old);
          alert(newVal);
-
-         //TODO : Fix by adding parseFloat calls 
+         */
          if (old > newVal)
-            alert('down');
+         {
+         }
          else if (old < newVal)
-            alert('up');
+         {
+         }
          else
-            alert('same');
+         {
+         }
       }
   }
   if (addEvent) {
