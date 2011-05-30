@@ -49,7 +49,7 @@ class index:
       <div id="chart-container-1" style="width: 100%; height: 500px;"></div>
       <div id="logo" style="position: absolute; top: 10px; left: 10px;"><img src="../static/img/logo.png" height="72px"/></div>
       <div id="show-no-items" style="position: absolute; top: 80px; left: 0px; width: 100%;">
-        <div id="no-items-msg" style="margin-top: 200px; text-align: center; font-size: 250%; font-family: Helvetica, sans-serif;">Click on a disease scheme, above.</div>
+        <div id="no-items-msg" style="margin-top: 200px; text-align: center; font-size: 150%; font-family: Helvetica, sans-serif;">Click on a disease scheme, above.</div>
       </div>
       <div id="export-button" style="display: none; position: absolute; top: 20px; right: 30px;">
         <img src="../static/img/print_button.png" height=30px onClick="exportNotes()"/></div>

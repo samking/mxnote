@@ -609,10 +609,10 @@ function colorize(html, color) {
 function plotTrack(trackName) {
   var track = tracksMap[trackName];
   chart1.addSeries({
-      name: trackName, 
-      data: [], 
-      color: colors[track.type], 
-      stickyTracking: false
+    name: trackName, 
+    data: [], 
+    color: colors[track.type], 
+    stickyTracking: false
   }, false, false);
   track.id = nextId++;
   track.yVal = nextVal++;
@@ -748,9 +748,11 @@ function initializeChart() {
     xAxis: {
       type: 'datetime',
       dateTimeLabelFormats: { // always display full date
-        hour: '%b %e %H:%M'
+        hour: '%b %e %H:%M',
+        minute: '%b %e %H:%M',
+        second: '%b %e %H:%M'
       },
-      maxZoom: 3600000, // one hour
+      maxZoom: 3600000 * 24, // one day
       maxPadding: .2,
       minPadding: .2,
       labels: {
@@ -783,6 +785,9 @@ function initializeChart() {
       y: 30,
       borderWidth: 0,
       reversed: true,
+      labelFormatter: function() {
+        return addLineBreaks(this.name);
+      }
     },
     plotOptions: {
       series: {
@@ -932,7 +937,8 @@ function createDialog(track, series, xVal) {
  */
 $(document).ready(function() {
   initializeChart();
-  chart1.redraw();
+  chart1.isDirtyBox = true;
+  setTimeout(chart1.redraw(), 500);
   loadDataFromCookie();
   
   SMART.PROBLEMS_get(fetchProblems);
