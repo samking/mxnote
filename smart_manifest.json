@@ -6,9 +6,9 @@
    "version" : "1",
    "mode" : "ui",
    "activities" : {
-      "main" : "http://localhost:8000/smartapp/bootstrap.html"
+      "main" : "http://mynotesmart.appspot.com/smartapp/bootstrap.html"
    },
                           
    "web_hooks" : { },
-   "icon" :  "http://localhost:8000/static/img/logo.png"
+   "icon" :  "http://mynotesmart.appspot.com/static/img/logo.png"
 }
