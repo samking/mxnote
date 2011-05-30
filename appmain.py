@@ -17,7 +17,7 @@
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import util
 
-class bootstrap:
+class bootstrap(webapp.RequestHandler):
    def get(self):
       self.response.out.write( """<!DOCTYPE html>
       <html>
@@ -99,7 +99,7 @@ class MainHandler(webapp.RequestHandler):
 
 
 def main():
-    application = webapp.WSGIApplication([('/smartapp/index.html', MainHandler), ('/smartapp/bootstrap.html', 'bootstrap')],
+    application = webapp.WSGIApplication([('/smartapp/index.html', MainHandler), ('/smartapp/bootstrap.html', bootstrap)],
                                          debug=True)
     util.run_wsgi_app(application)
 

@@ -326,8 +326,8 @@ function fetchLabs(labResult) {
                            'Glucose p fast SerPl-mCnc', 'Glucose SerPl-mCnc', 
                            'Hgb A1c MFr Bld',  'Prot SerPl-mCnc');
 
-  var labDesc = new Array('Cholestrol', 'HDL', 'LDL', 'Triglyceride', 
-                          'C-reactive protein', 'Albumin', 
+  var labDesc = new Array('Cholesterol', 'HDL', 'LDL', 'Triglyceride', 
+                          'C-Reactive Protein', 'Albumin', 
                           'Albumin/Creatine Ratio (Urine)', 'Blood Glucose', 
                            'Fasting Blood Glucose', 'Serum Glucose', 
                            'Hemoglobin A1c', 'Serum Protein');
