@@ -588,8 +588,9 @@ function resizeChart() {
   }
   $('#chart-container-1').css('height', String(height) + 'px');
   var width = chart1.chartWidth;
-  if (height > window.innerHeight)
+  if (height > window.innerHeight - 100) {
     width -= 20;
+  }
 
   chart1.setSize(width, height, true);
   $('#lab-key').css('visibility', 'visible');
