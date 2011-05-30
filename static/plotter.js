@@ -460,9 +460,11 @@ function addDataPoint(trackName, yName, description, startTime, endTime, type, c
       var newVal = description.replace(/[A-Za-z-$:% ]/g, "");
       old = old.replace(/\//g, "");
       newVal = newVal.replace(/\//g, "");
-      if (old > newVal) {
+      oldVal = parseFloat(old);
+      newVal = parseFloat(newVal);
+      if (oldVal > newVal) {
         labModifier = 'down';
-      } else if (old < newVal) {
+      } else if (oldVal < newVal) {
         labModifier = 'up';
       }
     }
