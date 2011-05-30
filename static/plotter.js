@@ -96,7 +96,7 @@ function noteSortCmpFn(noteA, noteB) {
 //earliestDate represents the earliest date that will be printed
 //the string will be in sorted order by date
 function generateTextToExport (earliestDate) {
-  var text = "";
+  var text = "<html><head><title>Print Notes</title></head><body><div style=\"font-family: 'Lucida Grande', 'Lucida Sans Unicode', Verdana, Arial, Helvetica, sans-serif;\">";
   //adds header: Logo, Patient Name, Prepared On
   text += '<img src="../static/img/logo.png" height="72px"/>';
   text += SMART.record.full_name + ' - ' + SMART.record.id + ".  ";
@@ -119,8 +119,6 @@ function generateTextToExport (earliestDate) {
   //sorts the array
   notes.sort(noteSortCmpFn);
 
-  console.log(notes);
-
   //prints the array
   for (var noteId in notes) {
     var note = notes[noteId];
@@ -131,6 +129,8 @@ function generateTextToExport (earliestDate) {
             makeDisplayNoteType(note.type) + ": " + note.description + 
             LINE_DELIMITER + LINE_DELIMITER;
   }
+
+  text += "</div></html>";
   return text;
 }
 
@@ -141,7 +141,8 @@ function generateTextToExport (earliestDate) {
  
 //prints all notes by creating a new text window
 function exportAll() {
-  newWin = window.open("");
+  newWin = window.open("about:blank");
+  newWin.document.title = "Print Notes";
   //date(0) will return the first possible date, so every note will have a more 
   //recent date than it
   newWin.document.write(generateTextToExport(new Date(0)));
