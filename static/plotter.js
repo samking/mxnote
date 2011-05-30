@@ -332,7 +332,6 @@ function fetchLabs(labResult) {
      else
         desc = lab_desc + " " + "Value: " + value + unit;
      date = lab_date;
-     colorVal = colorVal;
 
     addLab(lab_name, descForY, desc, dateToTime(sanitize(date)), colorVal);
   });
