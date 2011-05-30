@@ -65,17 +65,6 @@ function loadDataFromCookie() {
     //copies and displays each note into the current track
     track = tracksMap[trackName];
     track.notes = cookieTracks[trackName].notes;
-    for (var noteId in track.notes) {
-      var note = track.notes[noteId];
-      var series = chart1.series[track.id];
-      series.addPoint({
-        x: note.date, 
-        y: series.data[0].y, 
-        marker: {
-          symbol: 'url(../static/img/' + note.type + '_note.png)'
-        }
-      });
-    }
   }
 }
 
@@ -87,6 +76,15 @@ function makeDisplayTrackType(trackType) {
   if (trackType == 'med') return "Medication";
   if (trackType == 'lab') return "Lab";
   return trackType;
+}
+
+//Turns the internal value for the note type into an external display note type
+function makeDisplayNoteType(noteType) {
+  if (noteType == 'lab') return "Home-Recorded Lab Value";
+  if (noteType == 'negative') return "I Feel Worse";
+  if (noteType == 'positive') return "I Feel Better";
+  if (noteType == 'question') return "Question";
+  if (noteType == 'concern') return "Concern";
 }
 
 //returns >0 if noteA is more recent than noteB, 0 if they're equal, else <0 
@@ -126,8 +124,8 @@ function generateTextToExport (earliestDate) {
             LINE_DELIMITER + 
             Highcharts.dateFormat('%B %e, %Y, %H:%M', note.date) + 
             LINE_DELIMITER +
-            note.type + ": " + note.description + LINE_DELIMITER + 
-            LINE_DELIMITER;
+            makeDisplayNoteType(note.type) + ": " + note.description + 
+            LINE_DELIMITER + LINE_DELIMITER;
   }
   return text;
 }

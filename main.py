@@ -65,11 +65,11 @@ class index:
       <p id="time"></p>
       <form> 
         <select id="typeOfNote">
-          <option value="positive">positive</option>
-          <option value="neutral">neutral</option>
-          <option value="negative">negative</option>
-          <option value="question">question</option>
-          <option value="concern">concern</option>
+          <option value="positive">I Feel Better</option>
+          <option value="negative">I Feel Worse</option>
+          <option value="lab">Home-Recorded Lab Value</option>
+          <option value="question">Question</option>
+          <option value="concern">Concern</option>
         </select>
         <textarea id="textOfNote" cols=60 rows=7 name="textOfNote" class="text ui-widget-content ui-corner-all"></textarea> 
       </form> 
