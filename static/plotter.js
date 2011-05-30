@@ -540,6 +540,7 @@ function dateToTime(onset) {
 function switchScheme(scheme) {
   if (scheme == curScheme) return;
   $('#scheme-status').css('visibility', 'visible');
+  $('#lab-key').css('visibility', 'hidden');
   curScheme = scheme;
   
   var schemes = ['Cardio', 'T2d', 'Mental'];
@@ -556,7 +557,7 @@ function switchScheme(scheme) {
   
   if (chart1) chart1.destroy();
   initializeChart();
-
+  
   /* yuck.  timeouts because loadData is a real pain and completely hangs the
    * browser.
    */
@@ -586,7 +587,12 @@ function resizeChart() {
     height = count * 50;
   }
   $('#chart-container-1').css('height', String(height) + 'px');
-  chart1.setSize(chart1.chartWidth, height, true);
+  var width = chart1.chartWidth;
+  if (height > window.innerHeight)
+    width -= 20;
+
+  chart1.setSize(width, height, true);
+  $('#lab-key').css('visibility', 'visible');
   setTimeout( function() {
     chart1.isDirtyBox = true;
     chart1.redraw();
