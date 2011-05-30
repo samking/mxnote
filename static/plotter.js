@@ -109,18 +109,22 @@ function generateTextToExport (earliestDate) {
     var track = tracksMap[trackName];
     for (var noteId in track.notes) {
       var note = track.notes[noteId];
-      var displayTrackType = makeDisplayTrackType(track.type);
       if (new Date(note.date) >= earliestDate) {
+        note.displayTrackType = makeDisplayTrackType(track.type);
+        note.displayTrackName = track.yName.replace(/<br.*>/ig, " ");
         notes.push(note);
       }
     }
   }
   //sorts the array
   notes.sort(noteSortCmpFn);
+
+  console.log(notes);
+
   //prints the array
   for (var noteId in notes) {
     var note = notes[noteId];
-    text += displayTrackType + ": " + track.name.replace(/<br.*>/ig, " ") + 
+    text += note.displayTrackType + ": " + note.displayTrackName + 
             LINE_DELIMITER + 
             Highcharts.dateFormat('%B %e, %Y, %H:%M', note.date) + 
             LINE_DELIMITER +
