@@ -556,20 +556,42 @@ function plotTrack(trackName) {
   }
 }
 
+/* compares tracks for sorting purposes. */
+function cmpTracks(a, b) {
+  var trackA = tracksMap[a];
+  var trackB = tracksMap[b];
+
+  // prob < med < lab -- just so happens that lexicographically, probs come
+  // after meds come after labs
+  if (trackA.type != trackB.type) {
+    if (trackA.type > trackB.type)
+      return -1;
+    else return 1;
+  }
+  
+  // sort by which track has an earlier first data point
+  return trackA.events[0].startTime - trackB.events[0].startTime;
+}
+
 /* loads the data from tracksMap into the chart.
  * assumes chart is initialized.
  */
 function loadData() {
   if (!chart1) return;
 
-  var numToShow = 0;
+  var tracksToPlot = [];
   for (trackName in tracksMap) {
     if (isInDiseaseScheme(trackName, curScheme)) {
-      numToShow ++;
-      plotTrack(trackName);
+      tracksToPlot.push(trackName);
     }
   }
-  if (numToShow == 0) {
+  
+  tracksToPlot.sort(cmpTracks);
+  for (var i = 0; i < tracksToPlot.length; i++) {
+    plotTrack(tracksToPlot[i]);
+  }
+  
+  if (tracksToPlot.length == 0) {
     $('#no-items-msg').html('No items to display.');
     $('#show-no-items').css('display', 'inline');
     $('#export-button').css('display', 'none');
