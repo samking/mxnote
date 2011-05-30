@@ -196,12 +196,15 @@ function exportNotes() {
 
 /* does manual word wrap for all the names */
 function addLineBreaks(str) {
+  var breakCol = 15;
+  if (window.innerWidth < 700)
+    breakCol = 8;
   var words = String(str).split(' ');
   var retValue = "";
   var totWords = words.length;
   while (words.length > 0) {
     var line = "";
-    while (line.length < 15 && words.length > 0) {
+    while (line.length < breakCol && words.length > 0) {
       line += words.shift() + " ";
     }
     retValue += line + "<br/>";
@@ -585,11 +588,8 @@ function switchScheme(scheme) {
  */
 function resizeChart() {
   var count = chart1.series.length;
-  if (count <= 10) {
-    height = 500;
-  } else {
-    height = count * 50;
-  }
+  height = Math.max(count, 10) * (window.innerWidth < 700 ? 75 : 50);
+  
   $('#chart-container-1').css('height', String(height) + 'px');
   var width = chart1.chartWidth;
   if (height > window.innerHeight - 100) {
