@@ -356,43 +356,33 @@ function addDataPoint(trackName, yName, description, startTime, endTime, type, c
   }
   var addEvent = true;
   for (var currEvent in track.events) {
-
     if (currEvent.description == description) addEvent = false;
   }
-  if (type == 'lab')
-  {
-      //alert(track.events.length);
-      
-      var lastOne = track.events.length - 1;
-      if (lastOne >= 0)
-      {
-         //gross parsing.
-         var lastDesc = track.events[lastOne].description;
-         var old = lastDesc.replace(/[A-Za-z-$:% ]/g, "");
-         var newVal = description.replace(/[A-Za-z-$:% ]/g, "");
-         old = old.replace(/\//g, "");
-         newVal = newVal.replace(/\//g, "");
-         /*
-          * Jason, add the arrow stuff here!
-         alert(old);
-         alert(newVal);
-         */
-         if (old > newVal)
-         {
-         }
-         else if (old < newVal)
-         {
-         }
-         else
-         {
-         }
+  
+  var labModifier = null;
+  if (type == 'lab') {
+    labModifier = '';
+    var lastOne = track.events.length - 1;
+    if (lastOne >= 0) {
+      //super gross parsing.
+      var lastDesc = track.events[lastOne].description;
+      var old = lastDesc.replace(/[A-Za-z-$:% ]/g, "");
+      var newVal = description.replace(/[A-Za-z-$:% ]/g, "");
+      old = old.replace(/\//g, "");
+      newVal = newVal.replace(/\//g, "");
+      if (old > newVal) {
+        labModifier = 'down';
+      } else if (old < newVal) {
+        labModifier = 'up';
       }
+    }
   }
   if (addEvent) {
     var event = {
         'description' : description,
         'startTime'   : startTime,
         'endTime'     : endTime,
+        'modifier'    : labModifier
     }
     if (colorVal != undefined)
       event.colorVal = colorVal;
@@ -536,7 +526,8 @@ function plotTrack(trackName) {
     var event = track.events[i];
     var symbol = 'circle';
     if (event.colorVal) {
-      symbol = 'url(../static/img/lab' + event.colorVal.toString() + '.png)';
+      var suffix = event.colorVal.toString() + (event.modifier == '' ? '' : '_' + event.modifier);
+      symbol = 'url(../static/img/lab_' + suffix + '.png)';
     }
 
     chart1.series[track.id].addPoint({
