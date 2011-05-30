@@ -941,9 +941,6 @@ function createDialog(track, series, xVal) {
  *  document.ready.  main, in a sense. :)
  */
 $(document).ready(function() {
-  initializeChart();
-  chart1.isDirtyBox = true;
-  setTimeout(chart1.redraw(), 500);
   loadDataFromCookie();
   
   SMART.PROBLEMS_get(fetchProblems);
