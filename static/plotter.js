@@ -244,7 +244,7 @@ function fetchProblems(probs) {
   
   for (var i = 0; i < dataPoints.length; i++) {
     var pt = dataPoints[i];
-    addDataPoint(pt.name, addLineBreaks(pt.name), pt.desc, pt.start, pt.end, pt.type);
+    addDataPoint(pt.name, pt.name, pt.desc, pt.start, pt.end, pt.type);
   }
 }
 
@@ -284,7 +284,7 @@ function fetchMeds(meds) {
   dataPoints.sort(cmpDataPts);
   for (var i = 0; i < dataPoints.length; i++) {
     var pt = dataPoints[i];
-    addDataPoint(pt.name, addLineBreaks(pt.name), pt.desc, pt.start, pt.end, pt.type);
+    addDataPoint(pt.name, pt.name, pt.desc, pt.start, pt.end, pt.type);
   }
 }
 
@@ -774,7 +774,7 @@ function initializeChart() {
             var track = tracksMap[key];
             if (chart1.series[track.id] && track.yVal == this.value &&
                 chart1.series[track.id].visible)
-              return colorize(track.yName, colors[tracksMap[key].type]);
+              return colorize(addLineBreaks(track.yName), colors[tracksMap[key].type]);
           }
           return '';
         }
