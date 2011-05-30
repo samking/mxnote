@@ -788,9 +788,10 @@ function initializeChart() {
       x: -10,
       y: 140,
       borderWidth: 0,
+      itemWidth: 160,
       reversed: true,
       labelFormatter: function() {
-        return addLineBreaks(this.name);
+        return addLineBreaks(tracksMap[this.name].yName);
       }
     },
     plotOptions: {
