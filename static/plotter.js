@@ -690,9 +690,11 @@ function loadData() {
     $('#no-items-msg').html('No items to display.');
     $('#show-no-items').css('display', 'inline');
     $('#export-button').css('display', 'none');
+    $('#lab-key').css('display', 'none');
   } else {
     $('#show-no-items').css('display', 'none');
     $('#export-button').css('display', 'inline');
+    $('#lab-key').css('display', 'inline');
   }
 }
 
@@ -782,7 +784,7 @@ function initializeChart() {
       align: 'right',
       verticalAlign: 'top',
       x: -10,
-      y: 30,
+      y: 120,
       borderWidth: 0,
       reversed: true,
       labelFormatter: function() {
