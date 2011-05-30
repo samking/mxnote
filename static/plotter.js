@@ -847,7 +847,7 @@ function initializeChart() {
 function createDialog(track, series, xVal) {
   $('#date').text(Highcharts.dateFormat('Date: %B %e, %Y', xVal));
   $('#time').text(Highcharts.dateFormat('Time: %H:%M', xVal));
-  $('#track-title').text(track.name);
+  $('#track-title').text(track.yName);
   var desc = getNotesText(series, xVal);
   // Do not open a dialog if we click an event
   if (desc == null && getDescription(series, xVal) != null) return;
