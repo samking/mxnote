@@ -1,6 +1,6 @@
 {
    "name" : "MyNote",
-   "description" : "Your friend FOREVER!",
+   "description" : "Allows patients to create notes on an interactive timeline of their health history.",
    "author" : "Sam King, Jason Ma, Madiha Mubin and Brendan Stubbs",
    "id" : "MyNote@apps.smartplatforms.org",
    "version" : "1",
