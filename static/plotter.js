@@ -784,7 +784,7 @@ function initializeChart() {
       align: 'right',
       verticalAlign: 'top',
       x: -10,
-      y: 120,
+      y: 140,
       borderWidth: 0,
       reversed: true,
       labelFormatter: function() {
