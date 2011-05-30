@@ -15,37 +15,28 @@ var t2DKeys = new Array('Glucose', 'SULFONYLUREA-THIAZOLIDINEDIONE', 'PIOGLITAZO
 
 var cardioKeys = new Array('CILOSTAZOL', 'PORCINE', 'ANAGRELIDE', 'Coronary', 'Conjunctivitis', 'Vascular', 'DEXT', 'CITRATE', 'cardiovascular', 'Dilated', 'arteriosclerosis', 'THROMBIN', 'Preinfarction', 'DIPYRIDAMOLE', 'Heart', 'DALTEPARIN', 'tobacco', 'FONDAPARINUX', 'D5W', 'DEX', 'Congestive', 'ARGATROBAN', 'PHOS', 'ENOXAPARIN', 'Hypertensive', 'NACL', 'cardiomyopathy', 'QUINAZOLINE', 'THIENOPYRIDINE', 'rheumatic', 'ANTICOAG', 'pulmonary', 'ECG', 'WARFARIN', 'PHOSPHODIESTERASE', 'fibrillation', 'HEPARINOID', 'HIRUDIN', 'Cardiomyopathy', 'ischemic', 'TICLOPIDINE', 'Myalgia', 'LEPIRUDIN', 'CLOPIDOGREL', 'IIB/IIIA', 'COUMARIN', 'ABCIXIMAB', 'heart', 'Atrial', 'myositis', 'Chest', 'Hematuria', 'PRASUGREL', 'TINZAPARIN', 'ANTICOAGULANT', 'ANTICOAGULANTS', 'infarction', 'Cardiac', 'GLYCOPROTEIN', 'myocardial',  'ASPIRIN-DIPYRIDAMOLE', 'Hyperlipidemia', 'Precordial', 'HEPARIN', 'BISULFATE', 'TIROFIBAN', 'EPTIFIBATIDE', 'Cholest SerPl-mCnc', 'HDLc SerPl-mCnc', 'LDLc SerPl Calc-mCnc', 'Trigl SerPl-mCnc', 'CRP SerPl HS-mCnc', 'lipitor', 'atorvastatin', 'crestor', 'rosuvastatin', 'micardis', 'telmisartan', 'Letairis ', 'ambrisentan', 'Tracleer ', 'bosentan', 'Tyvaso ', 'treprostinil', 'Revatio ', 'sildenafil', 'Flolan ', 'epoprostenol', 'Remodulin', 'treprostinil', 'Ventavis ', 'iloprost', 'lisinopril', 'metoprolol', 'carvedilol', 'clopidogrel', 'prasugrel', 'aspirin', 'nitroglycerin', 'furosemide', 'enalapril', 'fenofibrate', 'niacin', 'hydrochlorothiazide', 'ezetimide', 'amiodarone', 'fosinopril', 'clonidine', 'digoxin', 'isosorbide mononitrate', 'isosorbide dinitrate', 'Cholest SerPl-mCnc', 'HDLc SerPl-mCnc', 'LDLc SerPl Calc-mCnc', 'Trigl SerPl-mCnc', 'CRP SerPl HS-mCnc');
 
+function compare(name, arr) {
+  name = name.toLowerCase();
+  var tokenized = name.split(' ');
+
+  for (var j = 0; j < arr.length; j++) {
+    if (name == arr[j].toLowerCase()) return true;
+    for (var i = 0; i < tokenized.length; i++) {
+      if (tokenized[i] == arr[j].toLowerCase()) return true;
+    }
+  }
+  return false;
+}
+
 function isInDiseaseScheme(name, scheme) {
     /* Schemes are: 'Cardio', 'T2d', 'Mental' */
-    /* try a match */
-    
 
-    newName = name.toLowerCase();
-    
-    if (scheme == 'Cardio')
-    {
-        for (var i = 0; i < cardioKeys.length; i++)
-        {
-            if (name.match(cardioKeys[i]) || newName.match((cardioKeys[i].toLowerCase())))
-                return true;
-        } 
-    }
-    if (scheme == 'T2d')
-    {
-        for (var i = 0; i < t2DKeys.length; i++)
-        {
-            if (name.match(t2DKeys[i]) || newName.match((t2DKeys[i].toLowerCase())))
-                return true;
-        } 
-    }
-    
-    if (scheme == 'Mental')
-    {
-        for (var i = 0; i < mHKeys.length; i++)
-        {
-            if (name.match(mHKeys[i]) || newName.match((mHKeys[i].toLowerCase())))
-                return true;
-        } 
+    if (scheme == 'Cardio') {
+      return compare(name, cardioKeys);
+    } else if (scheme == 'T2d') {
+      return compare(name, t2DKeys);
+    } else if (scheme == 'Mental') {
+      return compare(name, mHKeys);
     }
     return false;
 }
