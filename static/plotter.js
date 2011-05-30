@@ -825,7 +825,7 @@ function initializeChart() {
         },
         marker: {
           symbol: 'circle',
-          radius: 6
+          radius: 7
         }
       },
     },
