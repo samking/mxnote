@@ -270,12 +270,23 @@ function fetchMeds(meds) {
   .where("?freq sp:value ?freq_val")
   .where("?freq sp:unit ?freq_unit");
 
+  var med_end = meds.where("?medication rdf:type sp:Medication")
+                .where("?medication sp:endDate ?end");
+
+  endDates = [];
+  med_end.each(function(i, med)
+  {
+     endDates.push(med.end);
+  }
+  alert(endDates);
   var dataPoints = [];
   med_names.each(function(i, single)
   {
     var xVal = dateToTime(single.start.value);
-    var end = xVal + Math.random() * 365 * 24 * 3600 * 1000;
-  
+    var end;
+    if (endDates[i] == undefined)
+      var end = xVal + Math.random() * 365 * 24 * 3600 * 1000;
+    
     var drugName = single.drugname.value.replace(/"/g, "");
      
     dataPoints.push( {
